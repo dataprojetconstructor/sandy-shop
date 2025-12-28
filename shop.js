@@ -87,7 +87,6 @@ window.openProduct = function(id) {
     const galleryBox = document.getElementById('m-gallery');
     galleryBox.innerHTML = '';
     
-    // On combine l'image principale et la galerie
     let images = [mainImg];
     if(currentProduct.gallery) {
         currentProduct.gallery.forEach(g => {
@@ -142,11 +141,18 @@ window.openProduct = function(id) {
         selectedSize = "Unique";
     }
 
-    // E. Affichage
+    // E. Reset UI (Formulaire caché, Bouton visible, Flèche visible)
     document.getElementById('order-form-box').style.display = 'none';
     document.getElementById('btn-show-form').style.display = 'block';
+    
+    const arrow = document.querySelector('.scroll-hint-down');
+    if(arrow) arrow.style.display = 'block'; // On remontre la flèche
+
+    // Reset Livraison
     document.getElementById('c-address').style.display = 'none';
-    document.querySelectorAll('input[name="delivery"]')[0].checked = true;
+    document.getElementById('c-address').value = '';
+    const radios = document.querySelectorAll('input[name="delivery"]');
+    if(radios.length > 0) radios[0].checked = true;
     
     document.getElementById('product-modal').classList.add('modal-active');
 };
@@ -159,16 +165,23 @@ window.changeMainImage = function(src) {
     document.getElementById('m-img').src = src;
 };
 
-// Afficher formulaire
+// 5. GESTION DU BOUTON COMMANDER
 const btnShow = document.getElementById('btn-show-form');
 if(btnShow) {
     btnShow.addEventListener('click', function() {
         this.style.display = 'none';
         document.getElementById('order-form-box').style.display = 'block';
+        
+        // Cache la flèche quand on commence à commander
+        const arrow = document.querySelector('.scroll-hint-down');
+        if(arrow) arrow.style.display = 'none';
+        
+        // Scroll doux vers le formulaire
+        document.getElementById('order-form-box').scrollIntoView({behavior: 'smooth'});
     });
 }
 
-// 5. GESTION LIVRAISON
+// 6. GESTION LIVRAISON
 window.toggleAddress = function(show) {
     const field = document.getElementById('c-address');
     if(show) {
@@ -180,7 +193,22 @@ window.toggleAddress = function(show) {
     }
 };
 
-// 6. ENVOI COMMANDE
+// 7. GESTION ZOOM (Plein Écran)
+window.openZoom = function(src) {
+    const zoomOverlay = document.getElementById('zoom-view');
+    const zoomImg = document.getElementById('zoom-img-target');
+    if(zoomOverlay && zoomImg) {
+        zoomImg.src = src;
+        zoomOverlay.classList.add('active');
+    }
+};
+
+window.closeZoom = function() {
+    const zoomOverlay = document.getElementById('zoom-view');
+    if(zoomOverlay) zoomOverlay.classList.remove('active');
+};
+
+// 8. ENVOI COMMANDE
 window.sendOrder = function() {
     const name = document.getElementById('c-name').value;
     const code = document.getElementById('c-code').value;
@@ -216,5 +244,6 @@ _Merci de confirmer._`.trim();
 
     const url = `https://wa.me/${shopData.whatsapp_number}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
+    
     closeModal();
 };
