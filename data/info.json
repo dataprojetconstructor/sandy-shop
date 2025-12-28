@@ -1,0 +1,11 @@
+{
+  "name": "Sandy's Shop",
+  "bio": "Mode & Accessoires tendances à Lomé. Livraison partout. 👗👠",
+  "logo": "assets/logo.png",
+  "whatsapp_number": "22890000000",
+  "socials": {
+    "facebook": "https://facebook.com",
+    "tiktok": "https://tiktok.com",
+    "instagram": "https://instagram.com"
+  }
+}
