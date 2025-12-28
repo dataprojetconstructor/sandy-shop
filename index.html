@@ -4,25 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boutique</title>
-    <!-- CSS, Fonts, Icons -->
+    
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SEO Meta Dynamiques -->
+    
     <meta property="og:title" content="Boutique" id="og-title">
     <meta property="og:description" content="Découvrez nos produits" id="og-desc">
     <meta property="og:image" content="" id="og-image">
 </head>
 <body>
 
-    <!-- BOUTONS FLOTTANTS -->
+    <!-- NAVIGATION FLOTTANTE -->
     <a href="https://urbain7.github.io/EMAREA/" class="nav-btn-fixed btn-back"><i class="fas fa-arrow-left"></i></a>
     <div onclick="openShareModal()" class="nav-btn-fixed btn-share"><i class="fas fa-share-alt"></i></div>
 
     <!-- HEADER PROFIL -->
     <div class="profile-header" id="header-container"></div>
 
-    <!-- FILTRES CATÉGORIES -->
+    <!-- FILTRES -->
     <div id="category-container" class="category-scroll"></div>
 
     <!-- GRILLE CATALOGUE -->
@@ -46,8 +46,8 @@
                 <h2 id="m-title" style="margin-bottom:5px;">Titre</h2>
                 <div id="m-price-box" class="price-row"></div>
                 
-                <div style="background:#f9f9f9; padding:15px; border-radius:12px; margin-bottom:15px;">
-                    <p id="m-desc" style="margin:0; font-size:0.9rem; color:#555; line-height:1.5;">Description</p>
+                <div style="background:#f9f9f9; padding:15px; border-radius:12px; margin-bottom:15px; color:#555;">
+                    <p id="m-desc" style="margin:0; font-size:0.9rem; line-height:1.5;">Description</p>
                 </div>
 
                 <div class="scroll-hint-down" onclick="document.getElementById('btn-show-form').scrollIntoView({behavior: 'smooth'})">↓</div>
