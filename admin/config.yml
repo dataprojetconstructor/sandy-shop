@@ -1,17 +1,16 @@
 backend:
   name: github
-  repo: dataprojetconstructor/sandy-shop
+  repo: dataprojetconstructor/sandy-shop  # Ton nom d'utilisateur / nom du dossier
   branch: main
-  # On enlève app_id et auth_type. C'est tout !
 
+# Configuration des Images (SANS le slash au début pour éviter les bugs)
 media_folder: "assets/img"
 public_folder: "assets/img"
 
+# Configuration de l'affichage
 site_url: "https://dataprojetconstructor.github.io/sandy-shop"
 display_url: "https://dataprojetconstructor.github.io/sandy-shop"
 logo_url: "https://img.icons8.com/color/96/shop.png"
-
-# ... Le reste (collections) ne change pas ...
 
 collections:
   - name: "produits"
@@ -22,27 +21,38 @@ collections:
       - name: "catalogue"
         label: "Catalogue Complet"
         file: "data/produits.json"
-    fields:
-      - name: "items"
-        label: "Liste des Produits"
-        widget: "list"
-        summary: "{{fields.nom}} - {{fields.prix}} F"
         fields:
-          - { label: "ID Unique", name: "id", widget: "uuid" }
-          - { label: "Nom du produit", name: "nom", widget: "string" }
-          - { label: "Prix (CFA)", name: "prix", widget: "number" }
-          - { label: "Prix Original (si promo)", name: "prix_original", widget: "number", required: false }
-          - { label: "Image Principale", name: "image", widget: "image" }
-          
-          # NOUVEAUX CHAMPS
-          - label: "Galerie Photos (Optionnel)"
-            name: "gallery"
+          - name: "items"
+            label: "Liste des Produits"
             widget: "list"
+            summary: "{{fields.nom}} - {{fields.prix}} F"
             fields:
-              - { label: "Photo", name: "img", widget: "image" }
-          
-          - { label: "Tailles disponibles (séparer par virgule)", name: "sizes", widget: "string", required: false, hint: "Ex: S, M, L ou 38, 40, 42" }
-          
-          - { label: "Description", name: "desc", widget: "text" }
-          - { label: "Est-ce Nouveau ?", name: "is_new", widget: "boolean", default: true }
-          - { label: "Mettre en Star ?", name: "is_star", widget: "boolean", default: false }
+              # Identifiant Unique (Généré auto)
+              - { label: "ID Unique", name: "id", widget: "uuid" }
+              
+              # Infos de base
+              - { label: "Nom du produit", name: "nom", widget: "string" }
+              - { label: "Prix Actuel (CFA)", name: "prix", widget: "number" }
+              
+              # Promo (Si rempli, le prix actuel clignote)
+              - { label: "Prix Original (Optionnel - Pour promo)", name: "prix_original", widget: "number", required: false, hint: "Mettez le prix barré ici" }
+              
+              # Images
+              - { label: "Image Principale", name: "image", widget: "image" }
+              
+              - label: "Galerie Photos (Optionnel)"
+                name: "gallery"
+                widget: "list"
+                summary: "Photo supplémentaire"
+                fields:
+                  - { label: "Photo", name: "img", widget: "image" }
+
+              # Tailles
+              - { label: "Tailles disponibles", name: "sizes", widget: "string", required: false, hint: "Ex: 38, 40, 42 ou S, M, L (Séparer par des virgules)" }
+
+              # Détails
+              - { label: "Description", name: "desc", widget: "text" }
+              
+              # Options
+              - { label: "Est-ce Nouveau ?", name: "is_new", widget: "boolean", default: true }
+              - { label: "Mettre en Star (Accueil) ?", name: "is_star", widget: "boolean", default: false }
