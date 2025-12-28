@@ -181,3 +181,55 @@ img { max-width: 100%; display: block; }
     width: 100%; padding: 12px 15px; border: 1px solid #eee; background: #f9f9f9;
     border-radius: 10px; margin-bottom: 10px; font-family: inherit;
 }
+/* --- CORRECTION FORMULAIRE --- */
+
+/* 1. Groupe Téléphone (Plus d'espace pour l'indicatif) */
+.phone-group {
+    display: flex;
+    gap: 10px; /* Espace entre les deux cases */
+}
+
+.country-select {
+    flex: 0 0 110px; /* Largeur FIXE de 110px (suffisant pour 🇹🇬 +228) */
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+/* L'input numéro prend tout le reste de la place */
+.phone-group .form-input {
+    flex: 1;
+    margin-bottom: 0; /* On gère la marge via le parent */
+}
+
+/* 2. Bouton "Valider sur WhatsApp" (Style Pro) */
+.btn-whatsapp {
+    width: 100%;
+    padding: 15px;
+    background: #25D366; /* Le vrai vert WhatsApp */
+    color: white;
+    border: none;
+    border-radius: 50px; /* Forme pilule */
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4); /* Ombre verte */
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Espace pour l'icône */
+}
+
+.btn-whatsapp:hover {
+    background: #20bd5a;
+    transform: translateY(-2px);
+}
+
+.btn-whatsapp:active {
+    transform: scale(0.98);
+}
