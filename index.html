@@ -33,84 +33,75 @@
     <div class="catalog-grid" id="catalog-container">
         <!-- Rempli par JS -->
     </div>
-
-    <!-- MODALE PRODUIT -->
-    <div id="product-modal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
-       <div class="modal-card">
-    <span class="close-modal" onclick="closeModal()">&times;</span>
+<!-- modal -->
+    <div class="modal-card">
+    <!-- Croix Sticky -->
+    <div class="close-btn" onclick="closeModal()">✕</div>
     
-    <!-- Zone Image + Galerie -->
     <div class="modal-img-box">
-        <img id="m-img" class="modal-img" src="">
-        <!-- Galerie ajoutée par JS ici -->
+        <!-- Ajout de l'événement onclick pour le zoom -->
+        <img id="m-img" class="modal-img" src="" onclick="openZoom(this.src)">
         <div id="m-gallery" class="gallery-container"></div>
     </div>
 
-    <!-- Zone Infos -->
     <div class="modal-details">
         <h2 id="m-title" style="margin-bottom:5px;">Titre</h2>
-        
-        <!-- Prix (Géré par JS) -->
         <div id="m-price-box" class="price-row"></div>
-
+        
         <p id="m-desc" style="color:#666; font-size:0.9rem;">Description</p>
         
-        <!-- Tailles (Géré par JS) -->
+        <!-- Flèche animée -->
+        <div class="scroll-hint-down" onclick="document.getElementById('btn-show-form').scrollIntoView({behavior: 'smooth'})">
+            ↓
+        </div>
+
         <div id="m-sizes-box" style="display:none;">
             <h4 style="margin:10px 0 5px;">Taille :</h4>
             <div id="m-sizes" class="size-selector"></div>
         </div>
 
-        <button id="btn-show-form" class="btn-order">🛒 Commander</button>
+        <!-- Bouton qui bat -->
+        <button id="btn-show-form" class="btn-order btn-pulse">
+            🛒 Commander
+        </button>
 
-        <!-- FORMULAIRE AVANCÉ -->
+        <!-- Formulaire -->
         <div id="order-form-box" class="order-form">
             <h4>📝 Finaliser la commande</h4>
-            
             <input type="text" id="c-name" class="form-input" placeholder="Votre Nom">
             
-            <!-- Groupe Téléphone -->
-            <div class="phone-group" style="margin-bottom:10px;">
-                <!-- Sélecteur Indicatifs Afrique de l'Ouest -->
-<select id="c-code" class="country-select">
-    <option value="+228" selected>🇹🇬 +228 (Togo)</option>
-    <option value="+229">🇧🇯 +229 (Bénin)</option>
-    <option value="+233">🇬🇭 +233 (Ghana)</option>
-    <option value="+226">🇧🇫 +226 (Burkina)</option>
-    <option value="+225">🇨🇮 +225 (Côte d'Ivoire)</option>
-    <option value="+227">🇳🇪 +227 (Niger)</option>
-    <option value="+223">🇲🇱 +223 (Mali)</option>
-    <option value="+221">🇸🇳 +221 (Sénégal)</option>
-    <option value="+237">🇨🇲 +237 (Cameroun)</option>
-    <option value="+241">🇬🇦 +241 (Gabon)</option>
-</select>
-                <input type="tel" id="c-phone" class="form-input" style="margin-bottom:0;" placeholder="Numéro WhatsApp">
+            <div class="phone-group" style="margin-bottom:15px;">
+                <!-- INDICATIF NETTOYÉ (Sans parenthèses longues) -->
+                <select id="c-code" class="country-select">
+                    <option value="+228">🇹🇬 +228</option>
+                    <option value="+229">🇧🇯 +229</option>
+                    <option value="+233">🇬🇭 +233</option>
+                    <option value="+226">🇧🇫 +226</option>
+                    <option value="+225">🇨🇮 +225</option>
+                </select>
+                <input type="tel" id="c-phone" class="form-input" placeholder="Numéro WhatsApp">
             </div>
 
-            <!-- Options Livraison -->
-            <div style="font-weight:bold; margin-bottom:5px;">Mode de réception :</div>
+            <div style="font-weight:bold; margin-bottom:10px; font-size:0.9rem;">Mode de réception :</div>
             <div class="delivery-options">
                 <label class="radio-label">
                     <input type="radio" name="delivery" value="boutique" checked onchange="toggleAddress(false)">
-                    🏪 Récupérer à la boutique
+                    <span>🏪 Boutique</span>
                 </label>
                 <label class="radio-label">
                     <input type="radio" name="delivery" value="livraison" onchange="toggleAddress(true)">
-                    🛵 Livraison à domicile
+                    <span>🛵 Domicile</span>
                 </label>
             </div>
 
-            <input type="text" id="c-address" class="form-input" id="address-field" placeholder="Quartier / Adresse précise">
+            <input type="text" id="c-address" class="form-input" placeholder="Quartier / Lieu précis" style="display:none;">
             
-            <!-- DANS index.html, à la fin du formulaire -->
-
-<button onclick="sendOrder()" class="btn-whatsapp">
-    <i class="fab fa-whatsapp"></i> Valider la commande
-</button>
+            <button onclick="sendOrder()" class="btn-whatsapp">
+                <i class="fab fa-whatsapp"></i> Valider la commande
+            </button>
         </div>
     </div>
 </div>
-    </div>
     <!-- ZOOM PLEIN ÉCRAN -->
 <div id="zoom-view" class="zoom-overlay" onclick="closeZoom()">
     <span class="zoom-close">&times;</span>
