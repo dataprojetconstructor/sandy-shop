@@ -22,16 +22,27 @@ collections:
       - name: "catalogue"
         label: "Catalogue Complet"
         file: "data/produits.json"
+    fields:
+      - name: "items"
+        label: "Liste des Produits"
+        widget: "list"
+        summary: "{{fields.nom}} - {{fields.prix}} F"
         fields:
-          - name: "items"
-            label: "Liste des Produits"
+          - { label: "ID Unique", name: "id", widget: "uuid" }
+          - { label: "Nom du produit", name: "nom", widget: "string" }
+          - { label: "Prix (CFA)", name: "prix", widget: "number" }
+          - { label: "Prix Original (si promo)", name: "prix_original", widget: "number", required: false }
+          - { label: "Image Principale", name: "image", widget: "image" }
+          
+          # NOUVEAUX CHAMPS
+          - label: "Galerie Photos (Optionnel)"
+            name: "gallery"
             widget: "list"
-            summary: "{{fields.nom}} - {{fields.prix}} F"
             fields:
-              - { label: "ID Unique", name: "id", widget: "uuid" }
-              - { label: "Nom du produit", name: "nom", widget: "string" }
-              - { label: "Prix (CFA)", name: "prix", widget: "number" }
-              - { label: "Photo", name: "image", widget: "image" }
-              - { label: "Description", name: "desc", widget: "text" }
-              - { label: "Est-ce Nouveau ?", name: "is_new", widget: "boolean", default: true }
-              - { label: "Mettre en Star ?", name: "is_star", widget: "boolean", default: false }
+              - { label: "Photo", name: "img", widget: "image" }
+          
+          - { label: "Tailles disponibles (séparer par virgule)", name: "sizes", widget: "string", required: false, hint: "Ex: S, M, L ou 38, 40, 42" }
+          
+          - { label: "Description", name: "desc", widget: "text" }
+          - { label: "Est-ce Nouveau ?", name: "is_new", widget: "boolean", default: true }
+          - { label: "Mettre en Star ?", name: "is_star", widget: "boolean", default: false }
