@@ -4,7 +4,9 @@
       "id": "cbbc2b4d-ad3a-4fb9-89a8-9e5dfdcc80c8",
       "nom": "Chaussure Noire",
       "prix": 5000,
+      "prix_original": null,
       "image": "assets/img/imageun.jpeg",
+      "sizes": "",
       "desc": "Femme elegante",
       "is_new": true,
       "is_star": false
@@ -13,7 +15,14 @@
       "id": "244a7656-a9bb-40dd-b7c6-0b96cd50eb78",
       "nom": "fad chaussure femme",
       "prix": 6000,
+      "prix_original": null,
       "image": "/assets/img/cho.jpeg",
+      "gallery": [
+        {
+          "img": "/assets/img/cv.jpeg"
+        }
+      ],
+      "sizes": "",
       "desc": "Alliant style raffiné et confort durable, cette chaussure pour femme est conçue pour accompagner toutes vos tenues, du quotidien aux occasions spéciales. Sa silhouette élégante met en valeur le pied tout en assurant un maintien optimal grâce à une conception soignée et des matériaux de qualité.",
       "is_new": true,
       "is_star": false
