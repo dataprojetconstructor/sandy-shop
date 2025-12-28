@@ -6,7 +6,7 @@
       "prix": 5000,
       "prix_original": null,
       "image": "assets/img/imageun.jpeg",
-      "sizes": "",
+      "sizes": "42",
       "desc": "Femme elegante",
       "is_new": true,
       "is_star": false
