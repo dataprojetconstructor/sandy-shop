@@ -1,71 +1,113 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boutique</title>
-    
-    <!-- 1. STYLE -->
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- 2. POLICE (POPPINS - Comme EM AREA) -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    
-    <!-- 3. ICÔNES (FontAwesome) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+let shopData = {};
+let products = [];
+let currentProduct = null;
 
-    <!-- LIEN RETOUR EM AREA (Discret) -->
-    <a href="https://ton-site-principal.github.io" style="position:absolute; top:15px; left:15px; font-size:0.8rem; font-weight:bold; color:#FF9F1C; z-index:10;">
-        ← EM AREA
-    </a>
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadShopInfo();
+    await loadProducts();
+});
 
-    <!-- HEADER PROFIL -->
-    <div class="profile-header" id="header-container">
-        <div style="padding:40px;">Chargement boutique...</div>
-    </div>
+// 1. INFO BOUTIQUE
+async function loadShopInfo() {
+    try {
+        const res = await fetch('data/info.json');
+        shopData = await res.json();
+        
+        const header = document.getElementById('header-container');
+        document.title = shopData.name;
+        
+        // Sécurité Image (Placeholder si logo cassé)
+        const logoSrc = shopData.logo ? shopData.logo : 'https://via.placeholder.com/150?text=Boutique';
 
-    <!-- TITRE -->
-    <div class="catalog-title">Collections</div>
-
-    <!-- CATALOGUE -->
-    <div class="catalog-grid" id="catalog-container">
-        <!-- Rempli par JS -->
-    </div>
-
-    <!-- MODALE PRODUIT -->
-    <div id="product-modal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
-        <div class="modal-card">
-            <div class="close-btn" onclick="closeModal()">✕</div>
+        header.innerHTML = `
+            <img src="${logoSrc}" class="profile-img" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
+            <h1 class="profile-name">${shopData.name}</h1>
+            <p class="profile-bio">${shopData.bio}</p>
             
-            <img id="m-img" src="" alt="Produit">
-            
-            <h2 id="m-title" style="margin:0 0 5px;">Titre</h2>
-            <h3 id="m-price" style="color:#FF9F1C; margin:0 0 15px;">Prix</h3>
-            
-            <div style="background:#f9f9f9; padding:15px; border-radius:12px; font-size:0.9rem; line-height:1.5; color:#555;">
-                <p id="m-desc" style="margin:0;">Description...</p>
+            <div class="social-bar">
+                ${shopData.socials.facebook ? `<a href="${shopData.socials.facebook}" class="social-btn"><i class="fab fa-facebook-f"></i></a>` : ''}
+                ${shopData.socials.instagram ? `<a href="${shopData.socials.instagram}" class="social-btn"><i class="fab fa-instagram"></i></a>` : ''}
+                ${shopData.socials.tiktok ? `<a href="${shopData.socials.tiktok}" class="social-btn"><i class="fab fa-tiktok"></i></a>` : ''}
+                <a href="https://wa.me/${shopData.whatsapp_number}" class="social-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
             </div>
+        `;
+    } catch(e) { console.error(e); }
+}
 
-            <button id="btn-show-form" class="btn-order">
-                🛒 Commander
-            </button>
+// 2. PRODUITS
+async function loadProducts() {
+    try {
+        const res = await fetch('data/produits.json');
+        const data = await res.json();
+        products = data.items ? data.items : data;
 
-            <!-- FORMULAIRE (Caché) -->
-            <div id="order-form-box" style="display:none; margin-top:20px; border-top:1px dashed #eee; padding-top:20px;">
-                <h4 style="margin:0 0 10px;">Vos coordonnées</h4>
-                <input type="text" id="c-name" class="form-input" placeholder="Votre Nom">
-                <input type="tel" id="c-phone" class="form-input" placeholder="Téléphone / WhatsApp">
-                <input type="text" id="c-address" class="form-input" placeholder="Quartier de livraison">
-                
-                <button onclick="sendOrder()" class="btn-order" style="background:#25D366;">
-                    <i class="fab fa-whatsapp"></i> Envoyer commande
-                </button>
-            </div>
-        </div>
-    </div>
+        const grid = document.getElementById('catalog-container');
+        grid.innerHTML = '';
 
-    <script src="shop.js"></script>
-</body>
-</html>
+        products.forEach(p => {
+            const price = Number(p.prix).toLocaleString() + ' F';
+            // Image par défaut si manquante
+            const imgSrc = p.image ? p.image : 'https://via.placeholder.com/300?text=Produit';
+
+            grid.innerHTML += `
+                <div class="product-card" onclick="openProduct('${p.id}')">
+                    <img src="${imgSrc}" class="product-img" onerror="this.src='https://via.placeholder.com/300?text=Image+Cassée'">
+                    <div class="product-info">
+                        <div class="product-title">${p.nom}</div>
+                        <div class="product-price">${price}</div>
+                    </div>
+                </div>
+            `;
+        });
+    } catch(e) { console.error(e); }
+}
+
+// 3. MODALE
+window.openProduct = function(id) {
+    currentProduct = products.find(p => p.id == id);
+    if(!currentProduct) return;
+
+    document.getElementById('m-img').src = currentProduct.image || 'https://via.placeholder.com/300';
+    document.getElementById('m-title').textContent = currentProduct.nom;
+    document.getElementById('m-price').textContent = Number(currentProduct.prix).toLocaleString() + ' F';
+    document.getElementById('m-desc').textContent = currentProduct.desc || "Aucune description.";
+    
+    // Reset Form
+    document.getElementById('order-form-box').style.display = 'none';
+    document.getElementById('btn-show-form').style.display = 'block';
+
+    document.getElementById('product-modal').classList.add('modal-active');
+};
+
+window.closeModal = function() {
+    document.getElementById('product-modal').classList.remove('modal-active');
+};
+
+document.getElementById('btn-show-form').addEventListener('click', function() {
+    this.style.display = 'none';
+    document.getElementById('order-form-box').style.display = 'block';
+});
+
+// 4. COMMANDE WHATSAPP
+window.sendOrder = function() {
+    const name = document.getElementById('c-name').value;
+    const phone = document.getElementById('c-phone').value;
+    const address = document.getElementById('c-address').value;
+
+    if(!name || !phone) return alert("Nom et Téléphone obligatoires.");
+
+    const message = `
+*COMMANDE BOUTIQUE* 🛍️
+---------------------------
+🛒 *${currentProduct.nom}*
+💰 Prix : ${currentProduct.prix} F
+---------------------------
+👤 *Client :* ${name}
+📞 *Tel :* ${phone}
+📍 *Lieu :* ${address}
+`.trim();
+
+    const url = `https://wa.me/${shopData.whatsapp_number}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+    closeModal();
+};
