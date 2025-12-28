@@ -66,7 +66,7 @@ function renderGrid(items) {
     grid.innerHTML = '';
 
     if(items.length === 0) {
-        grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit.</div>';
+        grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit trouvé.</div>';
         return;
     }
 
@@ -96,8 +96,16 @@ function renderGrid(items) {
 function generateCategoryFilters() {
     const catContainer = document.getElementById('category-container');
     if(!catContainer) return;
+    
+    // On cherche les catégories existantes dans les produits
     const categories = ['Tout'];
-    products.forEach(p => { if(p.category && !categories.includes(p.category)) categories.push(p.category); });
+    products.forEach(p => { 
+        // Si le produit a une catégorie et qu'elle n'est pas encore dans la liste
+        if(p.category && !categories.includes(p.category)) {
+            categories.push(p.category);
+        }
+    });
+
     catContainer.innerHTML = '';
     categories.forEach(cat => {
         const btn = document.createElement('button');
@@ -115,7 +123,7 @@ function filterByCategory(cat, btnElement) {
     else renderGrid(products.filter(p => p.category === cat));
 }
 
-// 4. OUVRIR PRODUIT
+// 4. OUVRIR PRODUIT (CORRECTION ICI : .active au lieu de .modal-active)
 window.openProduct = function(id) {
     currentProduct = products.find(p => p.id == id);
     if(!currentProduct) return;
@@ -179,15 +187,14 @@ window.openProduct = function(id) {
     document.getElementById('btn-show-form').style.display = 'block';
     const arrow = document.querySelector('.scroll-hint-down');
     if(arrow) arrow.style.display = 'block';
-    document.getElementById('c-address').style.display = 'none';
-    document.querySelectorAll('input[name="delivery"]')[0].checked = true;
     
-    document.getElementById('product-modal').classList.add('modal-active');
+    // CORRECTION MAJEURE ICI
+    document.getElementById('product-modal').classList.add('active');
 };
 
 window.closeModal = function() {
     const modal = document.getElementById('product-modal');
-    if (modal) modal.classList.remove('modal-active');
+    if (modal) modal.classList.remove('active'); // CORRECTION ICI AUSSI
 };
 
 window.changeMainImage = function(src) { document.getElementById('m-img').src = src; };
@@ -217,8 +224,9 @@ window.openZoom = function(src) {
 };
 window.closeZoom = function() { document.getElementById('zoom-view').classList.remove('active'); };
 
-window.openShareModal = function() { document.getElementById('share-modal').classList.add('modal-active'); }
-window.closeShareModal = function() { document.getElementById('share-modal').classList.remove('modal-active'); }
+window.openShareModal = function() { document.getElementById('share-modal').classList.add('active'); }
+window.closeShareModal = function() { document.getElementById('share-modal').classList.remove('active'); }
+
 window.shareTo = function(platform) {
     const url = encodeURIComponent(window.location.href);
     const text = encodeURIComponent(`Regarde ${shopData.name} !`);
