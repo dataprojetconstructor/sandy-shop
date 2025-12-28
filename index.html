@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boutique</title>
+    <title>Chargement...</title>
     
     <!-- 1. STYLE -->
     <link rel="stylesheet" href="style.css">
     
-    <!-- 2. POLICE (POPPINS - Comme EM AREA) -->
+    <!-- 2. POLICE (POPPINS) -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
     <!-- 3. ICÔNES (FontAwesome) -->
@@ -16,15 +16,26 @@
 </head>
 <body>
 
-    <!-- LIEN RETOUR EM AREA (Discret en haut à gauche) -->
-    <a href="https://urbain7.github.io/EMAREA/" style="position:absolute; top:15px; left:15px; font-size:0.8rem; font-weight:bold; color:#FF9F1C; z-index:10; text-decoration:none;">
-        ← RETOUR
+    <!-- ============================== -->
+    <!-- NAVIGATION FIXE (Haut)         -->
+    <!-- ============================== -->
+    
+    <!-- Retour vers EM AREA -->
+    <a href="https://urbain7.github.io/EMAREA/" class="nav-btn-fixed btn-back">
+        <i class="fas fa-arrow-left"></i>
     </a>
+    
+    <!-- Bouton Partager -->
+    <div onclick="openShareModal()" class="nav-btn-fixed btn-share">
+        <i class="fas fa-share-alt"></i>
+    </div>
+
+    <!-- ============================== -->
+    <!-- CONTENU PRINCIPAL              -->
+    <!-- ============================== -->
 
     <!-- HEADER PROFIL (Rempli par JS) -->
-    <div class="profile-header" id="header-container">
-        <div style="padding:40px; color:#999;">Chargement de la boutique...</div>
-    </div>
+    <div class="profile-header" id="header-container"></div>
 
     <!-- TITRE SECTION -->
     <div class="catalog-title">Collections</div>
@@ -33,7 +44,7 @@
     <div class="catalog-grid" id="catalog-container"></div>
 
     <!-- ============================== -->
-    <!-- MODALE PRODUIT (Fenêtre)       -->
+    <!-- MODALE PRODUIT (Détails)       -->
     <!-- ============================== -->
     <div id="product-modal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
         <div class="modal-card">
@@ -41,20 +52,17 @@
             <!-- CROIX FERMETURE (Sticky) -->
             <div class="close-btn" onclick="closeModal()">✕</div>
             
-            <!-- ZONE IMAGE (Gauche sur PC, Haut sur Mobile) -->
+            <!-- ZONE IMAGE -->
             <div class="modal-img-box">
-                <!-- L'image principale (cliquable pour zoom) -->
-                <img id="m-img" class="modal-img" src="" onclick="openZoom(this.src)" alt="Produit">
-                
-                <!-- Galerie des autres photos -->
+                <img id="m-img" class="modal-img" src="" onclick="openZoom(this.src)" alt="Zoom">
                 <div id="m-gallery" class="gallery-container"></div>
             </div>
 
-            <!-- ZONE INFOS (Droite sur PC, Bas sur Mobile) -->
+            <!-- ZONE INFOS -->
             <div class="modal-details">
-                <h2 id="m-title" style="margin-bottom:5px;">Titre du produit</h2>
+                <h2 id="m-title" style="margin-bottom:5px;">Titre</h2>
                 
-                <!-- Prix (Normal ou Promo) -->
+                <!-- Prix -->
                 <div id="m-price-box" class="price-row"></div>
                 
                 <!-- Description -->
@@ -62,35 +70,32 @@
                     <p id="m-desc" style="margin:0;">Description...</p>
                 </div>
 
-                <!-- Flèche animée "Descendre" -->
+                <!-- Flèche animée -->
                 <div class="scroll-hint-down" onclick="document.getElementById('btn-show-form').scrollIntoView({behavior: 'smooth'})">
                     ↓
                 </div>
 
-                <!-- Sélecteur de Taille (Caché par défaut) -->
+                <!-- Sélecteur Taille -->
                 <div id="m-sizes-box" style="display:none;">
-                    <h4 style="margin:10px 0 5px;">Choisir une taille :</h4>
+                    <h4 style="margin:10px 0 5px;">Taille :</h4>
                     <div id="m-sizes" class="size-selector"></div>
                 </div>
 
-                <!-- BOUTON D'APPEL À L'ACTION (Bat comme un cœur) -->
+                <!-- BOUTON D'ACTION (Pulse) -->
                 <button id="btn-show-form" class="btn-order btn-pulse">
                     🛒 Commander cet article
                 </button>
 
-                <!-- ============================== -->
-                <!-- FORMULAIRE DE COMMANDE         -->
-                <!-- ============================== -->
+                <!-- FORMULAIRE COMMANDE -->
                 <div id="order-form-box" class="order-form" style="display:none;">
                     <h4 style="margin:0 0 15px;">📝 Finaliser la commande</h4>
                     
-                    <!-- Nom -->
-                    <input type="text" id="c-name" class="form-input" placeholder="Votre Nom complet">
+                    <input type="text" id="c-name" class="form-input" placeholder="Votre Nom">
                     
-                    <!-- Téléphone avec Indicatif -->
+                    <!-- Téléphone -->
                     <div class="phone-group" style="margin-bottom:15px;">
                         <select id="c-code" class="country-select">
-                            <option value="+228" selected>🇹🇬 +228</option>
+                            <option value="+228">🇹🇬 +228</option>
                             <option value="+229">🇧🇯 +229</option>
                             <option value="+233">🇬🇭 +233</option>
                             <option value="+226">🇧🇫 +226</option>
@@ -102,7 +107,7 @@
                         <input type="tel" id="c-phone" class="form-input" placeholder="Numéro WhatsApp">
                     </div>
 
-                    <!-- Mode de Livraison -->
+                    <!-- Livraison -->
                     <div style="font-weight:bold; margin-bottom:10px; font-size:0.9rem;">Mode de réception :</div>
                     <div class="delivery-options">
                         <label class="radio-label">
@@ -115,19 +120,46 @@
                         </label>
                     </div>
 
-                    <!-- Adresse (Apparaît si livraison choisie) -->
                     <input type="text" id="c-address" class="form-input" placeholder="Quartier / Lieu précis" style="display:none;">
                     
-                    <!-- BOUTON FINAL WHATSAPP -->
                     <button onclick="sendOrder()" class="btn-whatsapp">
-                        <i class="fab fa-whatsapp" style="font-size:1.2rem;"></i> Valider la commande
+                        <i class="fab fa-whatsapp"></i> Valider la commande
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- OVERLAY ZOOM IMAGE (Plein écran) -->
+    <!-- ============================== -->
+    <!-- MODALE PARTAGE                 -->
+    <!-- ============================== -->
+    <div id="share-modal" class="modal-overlay" onclick="if(event.target === this) closeShareModal()">
+        <div class="modal-card" style="max-height: auto; border-radius: 25px 25px 0 0;">
+            <div class="close-btn" onclick="closeShareModal()">✕</div>
+            <h3 style="text-align:center; margin-top:0;">Partager la boutique</h3>
+            
+            <div class="share-grid">
+                <div class="share-item" onclick="shareTo('whatsapp')">
+                    <div class="share-icon bg-wa"><i class="fab fa-whatsapp"></i></div>
+                    <span class="share-label">WhatsApp</span>
+                </div>
+                <div class="share-item" onclick="shareTo('facebook')">
+                    <div class="share-icon bg-fb"><i class="fab fa-facebook-f"></i></div>
+                    <span class="share-label">Facebook</span>
+                </div>
+                <div class="share-item" onclick="shareTo('copy')">
+                    <div class="share-icon bg-insta"><i class="fab fa-instagram"></i></div>
+                    <span class="share-label">Instagram</span>
+                </div>
+                <div class="share-item" onclick="shareTo('copy')">
+                    <div class="share-icon bg-copy"><i class="fas fa-link"></i></div>
+                    <span class="share-label">Copier</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY ZOOM -->
     <div id="zoom-view" class="zoom-overlay" onclick="closeZoom()">
         <span class="zoom-close">&times;</span>
         <img id="zoom-img-target" class="zoom-img" src="">
