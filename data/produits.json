@@ -3,6 +3,7 @@
     {
       "id": "cbbc2b4d-ad3a-4fb9-89a8-9e5dfdcc80c8",
       "nom": "Chaussure Noire",
+      "category": "Chaussures",
       "prix": 5000,
       "prix_original": null,
       "image": "assets/img/imageun.jpeg",
@@ -14,6 +15,7 @@
     {
       "id": "244a7656-a9bb-40dd-b7c6-0b96cd50eb78",
       "nom": "fad chaussure femme",
+      "category": "Vêtements",
       "prix": 6000,
       "prix_original": 10000,
       "image": "/assets/img/cho.jpeg",
