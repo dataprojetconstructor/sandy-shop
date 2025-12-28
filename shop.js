@@ -1,115 +1,71 @@
-let shopData = {};
-let products = [];
-let currentProduct = null;
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boutique</title>
+    
+    <!-- 1. STYLE -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- 2. POLICE (POPPINS - Comme EM AREA) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- 3. ICÔNES (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
 
-// 1. Initialisation
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadShopInfo();
-    await loadProducts();
-});
+    <!-- LIEN RETOUR EM AREA (Discret) -->
+    <a href="https://ton-site-principal.github.io" style="position:absolute; top:15px; left:15px; font-size:0.8rem; font-weight:bold; color:#FF9F1C; z-index:10;">
+        ← EM AREA
+    </a>
 
-// 2. Charger Infos Boutique
-async function loadShopInfo() {
-    try {
-        const res = await fetch('data/info.json');
-        shopData = await res.json();
-        
-        // Remplir le Header
-        const header = document.getElementById('header-container');
-        document.title = shopData.name; // Titre de l'onglet
-        
-        header.innerHTML = `
-            <img src="${shopData.logo}" class="profile-img">
-            <h1 class="profile-name">${shopData.name}</h1>
-            <p class="profile-bio">${shopData.bio}</p>
-            <div class="social-bar">
-                <a href="${shopData.socials.facebook}" class="social-btn"><i class="fab fa-facebook-f"></i></a>
-                <a href="${shopData.socials.instagram}" class="social-btn"><i class="fab fa-instagram"></i></a>
-                <a href="${shopData.socials.tiktok}" class="social-btn"><i class="fab fa-tiktok"></i></a>
-                <a href="https://wa.me/${shopData.whatsapp_number}" class="social-btn" style="background:#25D366; color:white;"><i class="fab fa-whatsapp"></i></a>
+    <!-- HEADER PROFIL -->
+    <div class="profile-header" id="header-container">
+        <div style="padding:40px;">Chargement boutique...</div>
+    </div>
+
+    <!-- TITRE -->
+    <div class="catalog-title">Collections</div>
+
+    <!-- CATALOGUE -->
+    <div class="catalog-grid" id="catalog-container">
+        <!-- Rempli par JS -->
+    </div>
+
+    <!-- MODALE PRODUIT -->
+    <div id="product-modal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
+        <div class="modal-card">
+            <div class="close-btn" onclick="closeModal()">✕</div>
+            
+            <img id="m-img" src="" alt="Produit">
+            
+            <h2 id="m-title" style="margin:0 0 5px;">Titre</h2>
+            <h3 id="m-price" style="color:#FF9F1C; margin:0 0 15px;">Prix</h3>
+            
+            <div style="background:#f9f9f9; padding:15px; border-radius:12px; font-size:0.9rem; line-height:1.5; color:#555;">
+                <p id="m-desc" style="margin:0;">Description...</p>
             </div>
-        `;
-    } catch(e) { console.error("Erreur Info", e); }
-}
 
-// 3. Charger Produits
-async function loadProducts() {
-    try {
-        const res = await fetch('data/produits.json'); // Le même format que pour EM AREA
-        const data = await res.json();
-        products = data.items ? data.items : data;
+            <button id="btn-show-form" class="btn-order">
+                🛒 Commander
+            </button>
 
-        const grid = document.getElementById('catalog-container');
-        grid.innerHTML = '';
+            <!-- FORMULAIRE (Caché) -->
+            <div id="order-form-box" style="display:none; margin-top:20px; border-top:1px dashed #eee; padding-top:20px;">
+                <h4 style="margin:0 0 10px;">Vos coordonnées</h4>
+                <input type="text" id="c-name" class="form-input" placeholder="Votre Nom">
+                <input type="tel" id="c-phone" class="form-input" placeholder="Téléphone / WhatsApp">
+                <input type="text" id="c-address" class="form-input" placeholder="Quartier de livraison">
+                
+                <button onclick="sendOrder()" class="btn-order" style="background:#25D366;">
+                    <i class="fab fa-whatsapp"></i> Envoyer commande
+                </button>
+            </div>
+        </div>
+    </div>
 
-        products.forEach(p => {
-            grid.innerHTML += `
-                <div class="product-thumb" onclick="openProduct(${p.id})">
-                    <img src="${p.image}" loading="lazy">
-                </div>
-            `;
-        });
-    } catch(e) { console.error("Erreur Produits", e); }
-}
-
-// 4. Ouvrir Modale Produit
-window.openProduct = function(id) {
-    currentProduct = products.find(p => p.id == id);
-    if(!currentProduct) return;
-
-    // Remplir les infos
-    document.getElementById('m-img').src = currentProduct.image;
-    document.getElementById('m-title').textContent = currentProduct.nom;
-    document.getElementById('m-price').textContent = Number(currentProduct.prix).toLocaleString() + ' F';
-    document.getElementById('m-desc').textContent = currentProduct.desc || "Pas de description.";
-    
-    // Reset Formulaire
-    document.getElementById('order-form-box').style.display = 'none';
-    document.getElementById('btn-show-form').style.display = 'block';
-
-    // Afficher Modale
-    document.getElementById('product-modal').classList.add('modal-active');
-};
-
-window.closeModal = function() {
-    document.getElementById('product-modal').classList.remove('modal-active');
-};
-
-// Afficher le formulaire quand on clique sur "Commander"
-document.getElementById('btn-show-form').addEventListener('click', function() {
-    this.style.display = 'none'; // Cache ce bouton
-    document.getElementById('order-form-box').style.display = 'block'; // Affiche le formulaire
-});
-
-// 5. Envoyer Commande WhatsApp
-window.sendOrder = function() {
-    // Récupérer les infos client
-    const name = document.getElementById('c-name').value;
-    const phone = document.getElementById('c-phone').value;
-    const social = document.getElementById('c-social').value;
-    const address = document.getElementById('c-address').value;
-
-    if(!name || !phone) return alert("Veuillez mettre votre nom et téléphone.");
-
-    // Construire le message Facture
-    const message = `
-*NOUVELLE COMMANDE* 🛍️
----------------------------
-🛒 *Produit :* ${currentProduct.nom}
-💰 *Prix :* ${currentProduct.prix} F
----------------------------
-👤 *CLIENT :*
-Nom : ${name}
-Tel : ${phone}
-${social ? 'Réseau : ' + social : ''}
-📍 *Livraison :* ${address}
----------------------------
-_Merci de confirmer la disponibilité._
-    `.trim();
-
-    // Ouvrir WhatsApp
-    const url = `https://wa.me/${shopData.whatsapp_number}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-    
-    closeModal();
-};
+    <script src="shop.js"></script>
+</body>
+</html>
