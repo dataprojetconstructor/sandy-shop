@@ -4,54 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boutique</title>
+    
+    <!-- 1. STYLE -->
     <link rel="stylesheet" href="style.css">
-    <!-- FontAwesome pour les icones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- 2. POLICE (POPPINS - Comme EM AREA) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- 3. ICÔNES (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- 1. HEADER PROFIL -->
+    <!-- LIEN RETOUR EM AREA (Discret) -->
+    <a href="https://ton-site-principal.github.io" style="position:absolute; top:15px; left:15px; font-size:0.8rem; font-weight:bold; color:#FF9F1C; z-index:10;">
+        ← EM AREA
+    </a>
+
+    <!-- HEADER PROFIL -->
     <div class="profile-header" id="header-container">
-        <!-- Rempli par JS -->
+        <div style="padding:40px;">Chargement boutique...</div>
     </div>
 
-    <!-- 2. CATALOGUE -->
+    <!-- TITRE -->
+    <div class="catalog-title">Collections</div>
+
+    <!-- CATALOGUE -->
     <div class="catalog-grid" id="catalog-container">
         <!-- Rempli par JS -->
     </div>
 
-    <!-- 3. MODALE PRODUIT + FORMULAIRE -->
-    <div id="product-modal" class="modal-overlay">
+    <!-- MODALE PRODUIT -->
+    <div id="product-modal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
         <div class="modal-card">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div class="close-btn" onclick="closeModal()">✕</div>
             
-            <!-- Image à gauche -->
-            <div class="modal-img-box">
-                <img id="m-img" class="modal-img" src="">
+            <img id="m-img" src="" alt="Produit">
+            
+            <h2 id="m-title" style="margin:0 0 5px;">Titre</h2>
+            <h3 id="m-price" style="color:#FF9F1C; margin:0 0 15px;">Prix</h3>
+            
+            <div style="background:#f9f9f9; padding:15px; border-radius:12px; font-size:0.9rem; line-height:1.5; color:#555;">
+                <p id="m-desc" style="margin:0;">Description...</p>
             </div>
 
-            <!-- Infos à droite -->
-            <div class="modal-details">
-                <h2 id="m-title">Titre</h2>
-                <h3 id="m-price" style="color:#27ae60;">Prix</h3>
-                <p id="m-desc" style="color:#666; line-height:1.6;">Description</p>
-                
-                <button id="btn-show-form" class="btn-order" style="background:var(--primary);">
-                    🛒 Commander cet article
-                </button>
+            <button id="btn-show-form" class="btn-order">
+                 Commander
+            </button>
 
-                <!-- FORMULAIRE DE COMMANDE (Caché au début) -->
-                <div id="order-form-box" class="order-form">
-                    <h4>📝 Vos coordonnées</h4>
-                    <input type="text" id="c-name" class="form-input" placeholder="Votre Nom">
-                    <input type="tel" id="c-phone" class="form-input" placeholder="Numéro de téléphone">
-                    <input type="text" id="c-social" class="form-input" placeholder="Facebook/TikTok (Optionnel)">
-                    <input type="text" id="c-address" class="form-input" placeholder="Lieu de livraison">
-                    
-                    <button onclick="sendOrder()" class="btn-order">
-                        Valider la commande (WhatsApp)
-                    </button>
-                </div>
+            <!-- FORMULAIRE (Caché) -->
+            <div id="order-form-box" style="display:none; margin-top:20px; border-top:1px dashed #eee; padding-top:20px;">
+                <h4 style="margin:0 0 10px;">Vos coordonnées</h4>
+                <input type="text" id="c-name" class="form-input" placeholder="Votre Nom">
+                <input type="tel" id="c-phone" class="form-input" placeholder="Téléphone / WhatsApp">
+                <input type="text" id="c-address" class="form-input" placeholder="Quartier de livraison">
+                
+                <button onclick="sendOrder()" class="btn-order" style="background:#25D366;">
+                    <i class="fab fa-whatsapp"></i> Envoyer commande
+                </button>
             </div>
         </div>
     </div>
