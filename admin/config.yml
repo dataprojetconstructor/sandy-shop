@@ -1,14 +1,14 @@
 backend:
   name: github
-  repo: urbain7/sandy-shop # REMPLACE CECI PAR : ton-pseudo/nom-du-repo-boutique
+  repo: dataprojetconstructor/sandy-shop
   branch: main
+  auth_type: implicit  # <--- Ajoute cette ligne, ça aide souvent la connexion
 
-media_folder: "assets/img" # Où les photos seront stockées
+media_folder: "assets/img"
 public_folder: "/assets/img"
 
-# Configuration de l'interface
-site_url: "https://urbain7.github.io/sandy-shop"
-display_url: "https://urbain7.github.io/sandy-shop"
+site_url: "https://dataprojetconstructor.github.io/sandy-shop"
+display_url: "https://dataprojetconstructor.github.io/sandy-shop"
 logo_url: "https://img.icons8.com/color/96/shop.png"
 
 collections:
@@ -16,11 +16,10 @@ collections:
     label: "🛒 Mes Produits"
     editor:
       preview: false
-    # On dit à Sveltia de modifier ce fichier spécifique
     files:
       - name: "catalogue"
         label: "Catalogue Complet"
-        file: "data/produits.json" # Le fichier JSON que ton site Area lit
+        file: "data/produits.json"
         fields:
           - name: "items"
             label: "Liste des Produits"
@@ -30,8 +29,7 @@ collections:
               - { label: "ID Unique", name: "id", widget: "uuid" }
               - { label: "Nom du produit", name: "nom", widget: "string" }
               - { label: "Prix (CFA)", name: "prix", widget: "number" }
-              - { label: "Prix Original (Optionnel)", name: "prix_original", widget: "number", required: false }
               - { label: "Photo", name: "image", widget: "image" }
               - { label: "Description", name: "desc", widget: "text" }
-              - { label: "Mettre en Star ?", name: "is_star", widget: "boolean", default: false }
               - { label: "Est-ce Nouveau ?", name: "is_new", widget: "boolean", default: true }
+              - { label: "Mettre en Star ?", name: "is_star", widget: "boolean", default: false }
