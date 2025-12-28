@@ -2,7 +2,7 @@ backend:
   name: github
   repo: dataprojetconstructor/sandy-shop
   branch: main
-  auth_type: implicit  # <--- Ajoute cette ligne, ça aide souvent la connexion
+  # On enlève app_id et auth_type. C'est tout !
 
 media_folder: "assets/img"
 public_folder: "/assets/img"
@@ -10,6 +10,8 @@ public_folder: "/assets/img"
 site_url: "https://dataprojetconstructor.github.io/sandy-shop"
 display_url: "https://dataprojetconstructor.github.io/sandy-shop"
 logo_url: "https://img.icons8.com/color/96/shop.png"
+
+# ... Le reste (collections) ne change pas ...
 
 collections:
   - name: "produits"
