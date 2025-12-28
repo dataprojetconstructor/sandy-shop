@@ -1,3 +1,13 @@
 {
-  "items": []
+  "items": [
+    {
+      "id": "6b333046-147b-4f10-87fb-8aec00411112",
+      "nom": "chaussure femme",
+      "prix": 15000,
+      "image": "/assets/img/Sandales compensées à double port pour femmes, style de plage estival 2023 nouveau, sandales style romain à bout ouvert, pantoufles décontracté pour la Saint-Valentin _ Mode en ligne.jpeg",
+      "desc": "chaussure dame",
+      "is_new": true,
+      "is_star": false
+    }
+  ]
 }
