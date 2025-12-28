@@ -5,9 +5,36 @@ let selectedSize = null;
 
 // 1. DÉMARRAGE
 document.addEventListener('DOMContentLoaded', async () => {
+    showShopSkeleton(); // Affiche l'animation de chargement
     await loadShopInfo();
     await loadProducts();
 });
+
+// --- SKELETON LOADER ---
+function showShopSkeleton() {
+    // Header
+    const header = document.getElementById('header-container');
+    header.innerHTML = `
+        <div class="skeleton-header">
+            <div class="sk-avatar"></div>
+            <div class="sk-line sk-w-50"></div>
+            <div class="sk-line sk-w-30"></div>
+        </div>`;
+
+    // Catalogue
+    const grid = document.getElementById('catalog-container');
+    grid.innerHTML = '';
+    for(let i=0; i<4; i++) {
+        grid.innerHTML += `
+            <div class="product-card" style="height:250px; pointer-events:none;">
+                <div class="product-img skeleton" style="height:180px;"></div>
+                <div class="product-info">
+                    <div class="sk-line sk-w-50" style="margin-bottom:5px;"></div>
+                    <div class="sk-line sk-w-30"></div>
+                </div>
+            </div>`;
+    }
+}
 
 // 2. CHARGER INFOS BOUTIQUE
 async function loadShopInfo() {
@@ -16,10 +43,9 @@ async function loadShopInfo() {
         if(!res.ok) throw new Error("Info introuvable");
         shopData = await res.json();
         
-        const header = document.getElementById('header-container');
         document.title = shopData.name;
+        const header = document.getElementById('header-container');
         
-        // Nettoyage Slash Logo
         let logoSrc = shopData.logo || 'https://via.placeholder.com/150';
         if(logoSrc.startsWith('/')) logoSrc = logoSrc.substring(1);
 
@@ -49,14 +75,12 @@ async function loadProducts() {
         grid.innerHTML = '';
 
         if(products.length === 0) {
-            grid.innerHTML = '<div style="padding:20px; text-align:center;">Aucun produit.</div>';
+            grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit disponible.</div>';
             return;
         }
 
         products.forEach(p => {
             const price = Number(p.prix).toLocaleString() + ' F';
-            
-            // Nettoyage Slash Image
             let imgPath = p.image || 'https://via.placeholder.com/300';
             if(imgPath.startsWith('/')) imgPath = imgPath.substring(1);
 
@@ -73,17 +97,16 @@ async function loadProducts() {
     } catch(e) { console.error(e); }
 }
 
-// 4. OUVRIR PRODUIT (MODALE)
+// 4. OUVRIR PRODUIT
 window.openProduct = function(id) {
     currentProduct = products.find(p => p.id == id);
     if(!currentProduct) return;
 
-    // A. Image Principale
+    // A. Images
     let mainImg = currentProduct.image || 'https://via.placeholder.com/300';
     if(mainImg.startsWith('/')) mainImg = mainImg.substring(1);
     document.getElementById('m-img').src = mainImg;
 
-    // B. Galerie
     const galleryBox = document.getElementById('m-gallery');
     galleryBox.innerHTML = '';
     
@@ -102,7 +125,7 @@ window.openProduct = function(id) {
         });
     }
 
-    // C. Infos & Prix
+    // B. Infos
     document.getElementById('m-title').textContent = currentProduct.nom;
     document.getElementById('m-desc').textContent = currentProduct.desc || "";
     
@@ -116,7 +139,7 @@ window.openProduct = function(id) {
         priceBox.innerHTML = `<h3 style="color:#FF9F1C; margin:0;">${price}</h3>`;
     }
 
-    // D. Tailles
+    // C. Tailles
     const sizeBox = document.getElementById('m-sizes-box');
     const sizeContainer = document.getElementById('m-sizes');
     selectedSize = null;
@@ -141,47 +164,41 @@ window.openProduct = function(id) {
         selectedSize = "Unique";
     }
 
-    // E. Reset UI (Formulaire caché, Bouton visible, Flèche visible)
+    // D. Reset UI
     document.getElementById('order-form-box').style.display = 'none';
     document.getElementById('btn-show-form').style.display = 'block';
     
     const arrow = document.querySelector('.scroll-hint-down');
-    if(arrow) arrow.style.display = 'block'; // On remontre la flèche
+    if(arrow) arrow.style.display = 'block';
 
-    // Reset Livraison
     document.getElementById('c-address').style.display = 'none';
     document.getElementById('c-address').value = '';
-    const radios = document.querySelectorAll('input[name="delivery"]');
-    if(radios.length > 0) radios[0].checked = true;
+    document.querySelectorAll('input[name="delivery"]')[0].checked = true;
     
     document.getElementById('product-modal').classList.add('modal-active');
 };
 
 window.closeModal = function() {
-    document.getElementById('product-modal').classList.remove('modal-active');
+    const modal = document.getElementById('product-modal');
+    if (modal) modal.classList.remove('modal-active');
 };
 
 window.changeMainImage = function(src) {
     document.getElementById('m-img').src = src;
 };
 
-// 5. GESTION DU BOUTON COMMANDER
+// 5. INTERACTIONS FORMULAIRE
 const btnShow = document.getElementById('btn-show-form');
 if(btnShow) {
     btnShow.addEventListener('click', function() {
         this.style.display = 'none';
         document.getElementById('order-form-box').style.display = 'block';
-        
-        // Cache la flèche quand on commence à commander
         const arrow = document.querySelector('.scroll-hint-down');
         if(arrow) arrow.style.display = 'none';
-        
-        // Scroll doux vers le formulaire
         document.getElementById('order-form-box').scrollIntoView({behavior: 'smooth'});
     });
 }
 
-// 6. GESTION LIVRAISON
 window.toggleAddress = function(show) {
     const field = document.getElementById('c-address');
     if(show) {
@@ -193,7 +210,7 @@ window.toggleAddress = function(show) {
     }
 };
 
-// 7. GESTION ZOOM (Plein Écran)
+// 6. GESTION ZOOM
 window.openZoom = function(src) {
     const zoomOverlay = document.getElementById('zoom-view');
     const zoomImg = document.getElementById('zoom-img-target');
@@ -208,6 +225,31 @@ window.closeZoom = function() {
     if(zoomOverlay) zoomOverlay.classList.remove('active');
 };
 
+// 7. GESTION PARTAGE
+window.openShareModal = function() {
+    document.getElementById('share-modal').classList.add('modal-active');
+}
+
+window.closeShareModal = function() {
+    document.getElementById('share-modal').classList.remove('modal-active');
+}
+
+window.shareTo = function(platform) {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`Regarde la boutique ${shopData.name || 'Top'} sur EM AREA ! 🛍️`);
+    let link = '';
+
+    if (platform === 'whatsapp') link = `https://wa.me/?text=${text}%20${url}`;
+    else if (platform === 'facebook') link = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+    else {
+        navigator.clipboard.writeText(window.location.href).then(() => alert("Lien copié !"));
+        closeShareModal();
+        return;
+    }
+    if (link) window.open(link, '_blank');
+    closeShareModal();
+}
+
 // 8. ENVOI COMMANDE
 window.sendOrder = function() {
     const name = document.getElementById('c-name').value;
@@ -217,11 +259,7 @@ window.sendOrder = function() {
     const address = document.getElementById('c-address').value;
 
     if(!name || !phone) return alert("Nom et Téléphone obligatoires.");
-    
-    if(currentProduct.sizes && (!selectedSize || selectedSize === "Unique")) {
-        return alert("Veuillez choisir une taille.");
-    }
-
+    if(currentProduct.sizes && (!selectedSize || selectedSize === "Unique")) return alert("Veuillez choisir une taille.");
     if(deliveryMode === 'livraison' && !address) return alert("Adresse obligatoire pour la livraison.");
 
     const fullPhone = code + phone;
@@ -244,6 +282,5 @@ _Merci de confirmer._`.trim();
 
     const url = `https://wa.me/${shopData.whatsapp_number}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
-    
     closeModal();
 };
