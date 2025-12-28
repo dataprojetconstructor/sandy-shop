@@ -8,6 +8,15 @@
       "desc": "chaussure dame",
       "is_new": true,
       "is_star": false
+    },
+    {
+      "id": "cbbc2b4d-ad3a-4fb9-89a8-9e5dfdcc80c8",
+      "nom": "chaussure noir",
+      "prix": 5000,
+      "image": "/assets/img/Valeria Slides🤎_Newest Arrival!.jpeg",
+      "desc": "femme elegante",
+      "is_new": true,
+      "is_star": false
     }
   ]
 }
