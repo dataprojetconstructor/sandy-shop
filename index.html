@@ -16,98 +16,124 @@
 </head>
 <body>
 
-    <!-- LIEN RETOUR EM AREA (Discret) -->
-    <a href="https://ton-site-principal.github.io" style="position:absolute; top:15px; left:15px; font-size:0.8rem; font-weight:bold; color:#FF9F1C; z-index:10;">
-        ← EM AREA
+    <!-- LIEN RETOUR EM AREA (Discret en haut à gauche) -->
+    <a href="https://urbain7.github.io/EMAREA/" style="position:absolute; top:15px; left:15px; font-size:0.8rem; font-weight:bold; color:#FF9F1C; z-index:10; text-decoration:none;">
+        ← RETOUR
     </a>
 
-    <!-- HEADER PROFIL -->
+    <!-- HEADER PROFIL (Rempli par JS) -->
     <div class="profile-header" id="header-container">
-        <div style="padding:40px;">Chargement boutique...</div>
+        <div style="padding:40px; color:#999;">Chargement de la boutique...</div>
     </div>
 
-    <!-- TITRE -->
+    <!-- TITRE SECTION -->
     <div class="catalog-title">Collections</div>
 
-    <!-- CATALOGUE -->
-    <div class="catalog-grid" id="catalog-container">
-        <!-- Rempli par JS -->
-    </div>
-<!-- modal -->
-    <div class="modal-card">
-    <!-- Croix Sticky -->
-    <div class="close-btn" onclick="closeModal()">✕</div>
-    
-    <div class="modal-img-box">
-        <!-- Ajout de l'événement onclick pour le zoom -->
-        <img id="m-img" class="modal-img" src="" onclick="openZoom(this.src)">
-        <div id="m-gallery" class="gallery-container"></div>
-    </div>
+    <!-- GRILLE CATALOGUE (Remplie par JS) -->
+    <div class="catalog-grid" id="catalog-container"></div>
 
-    <div class="modal-details">
-        <h2 id="m-title" style="margin-bottom:5px;">Titre</h2>
-        <div id="m-price-box" class="price-row"></div>
-        
-        <p id="m-desc" style="color:#666; font-size:0.9rem;">Description</p>
-        
-        <!-- Flèche animée -->
-        <div class="scroll-hint-down" onclick="document.getElementById('btn-show-form').scrollIntoView({behavior: 'smooth'})">
-            ↓
-        </div>
-
-        <div id="m-sizes-box" style="display:none;">
-            <h4 style="margin:10px 0 5px;">Taille :</h4>
-            <div id="m-sizes" class="size-selector"></div>
-        </div>
-
-        <!-- Bouton qui bat -->
-        <button id="btn-show-form" class="btn-order btn-pulse">
-            🛒 Commander
-        </button>
-
-        <!-- Formulaire -->
-        <div id="order-form-box" class="order-form">
-            <h4>📝 Finaliser la commande</h4>
-            <input type="text" id="c-name" class="form-input" placeholder="Votre Nom">
+    <!-- ============================== -->
+    <!-- MODALE PRODUIT (Fenêtre)       -->
+    <!-- ============================== -->
+    <div id="product-modal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
+        <div class="modal-card">
             
-            <div class="phone-group" style="margin-bottom:15px;">
-                <!-- INDICATIF NETTOYÉ (Sans parenthèses longues) -->
-                <select id="c-code" class="country-select">
-                    <option value="+228">🇹🇬 +228</option>
-                    <option value="+229">🇧🇯 +229</option>
-                    <option value="+233">🇬🇭 +233</option>
-                    <option value="+226">🇧🇫 +226</option>
-                    <option value="+225">🇨🇮 +225</option>
-                </select>
-                <input type="tel" id="c-phone" class="form-input" placeholder="Numéro WhatsApp">
+            <!-- CROIX FERMETURE (Sticky) -->
+            <div class="close-btn" onclick="closeModal()">✕</div>
+            
+            <!-- ZONE IMAGE (Gauche sur PC, Haut sur Mobile) -->
+            <div class="modal-img-box">
+                <!-- L'image principale (cliquable pour zoom) -->
+                <img id="m-img" class="modal-img" src="" onclick="openZoom(this.src)" alt="Produit">
+                
+                <!-- Galerie des autres photos -->
+                <div id="m-gallery" class="gallery-container"></div>
             </div>
 
-            <div style="font-weight:bold; margin-bottom:10px; font-size:0.9rem;">Mode de réception :</div>
-            <div class="delivery-options">
-                <label class="radio-label">
-                    <input type="radio" name="delivery" value="boutique" checked onchange="toggleAddress(false)">
-                    <span>🏪 Boutique</span>
-                </label>
-                <label class="radio-label">
-                    <input type="radio" name="delivery" value="livraison" onchange="toggleAddress(true)">
-                    <span>🛵 Domicile</span>
-                </label>
-            </div>
+            <!-- ZONE INFOS (Droite sur PC, Bas sur Mobile) -->
+            <div class="modal-details">
+                <h2 id="m-title" style="margin-bottom:5px;">Titre du produit</h2>
+                
+                <!-- Prix (Normal ou Promo) -->
+                <div id="m-price-box" class="price-row"></div>
+                
+                <!-- Description -->
+                <div style="background:#f9f9f9; padding:15px; border-radius:12px; font-size:0.9rem; line-height:1.5; color:#555; margin-bottom:15px;">
+                    <p id="m-desc" style="margin:0;">Description...</p>
+                </div>
 
-            <input type="text" id="c-address" class="form-input" placeholder="Quartier / Lieu précis" style="display:none;">
-            
-            <button onclick="sendOrder()" class="btn-whatsapp">
-                <i class="fab fa-whatsapp"></i> Valider la commande
-            </button>
+                <!-- Flèche animée "Descendre" -->
+                <div class="scroll-hint-down" onclick="document.getElementById('btn-show-form').scrollIntoView({behavior: 'smooth'})">
+                    ↓
+                </div>
+
+                <!-- Sélecteur de Taille (Caché par défaut) -->
+                <div id="m-sizes-box" style="display:none;">
+                    <h4 style="margin:10px 0 5px;">Choisir une taille :</h4>
+                    <div id="m-sizes" class="size-selector"></div>
+                </div>
+
+                <!-- BOUTON D'APPEL À L'ACTION (Bat comme un cœur) -->
+                <button id="btn-show-form" class="btn-order btn-pulse">
+                    🛒 Commander cet article
+                </button>
+
+                <!-- ============================== -->
+                <!-- FORMULAIRE DE COMMANDE         -->
+                <!-- ============================== -->
+                <div id="order-form-box" class="order-form" style="display:none;">
+                    <h4 style="margin:0 0 15px;">📝 Finaliser la commande</h4>
+                    
+                    <!-- Nom -->
+                    <input type="text" id="c-name" class="form-input" placeholder="Votre Nom complet">
+                    
+                    <!-- Téléphone avec Indicatif -->
+                    <div class="phone-group" style="margin-bottom:15px;">
+                        <select id="c-code" class="country-select">
+                            <option value="+228" selected>🇹🇬 +228</option>
+                            <option value="+229">🇧🇯 +229</option>
+                            <option value="+233">🇬🇭 +233</option>
+                            <option value="+226">🇧🇫 +226</option>
+                            <option value="+225">🇨🇮 +225</option>
+                            <option value="+227">🇳🇪 +227</option>
+                            <option value="+223">🇲🇱 +223</option>
+                            <option value="+221">🇸🇳 +221</option>
+                        </select>
+                        <input type="tel" id="c-phone" class="form-input" placeholder="Numéro WhatsApp">
+                    </div>
+
+                    <!-- Mode de Livraison -->
+                    <div style="font-weight:bold; margin-bottom:10px; font-size:0.9rem;">Mode de réception :</div>
+                    <div class="delivery-options">
+                        <label class="radio-label">
+                            <input type="radio" name="delivery" value="boutique" checked onchange="toggleAddress(false)">
+                            <span>🏪 Boutique</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="delivery" value="livraison" onchange="toggleAddress(true)">
+                            <span>🛵 Domicile</span>
+                        </label>
+                    </div>
+
+                    <!-- Adresse (Apparaît si livraison choisie) -->
+                    <input type="text" id="c-address" class="form-input" placeholder="Quartier / Lieu précis" style="display:none;">
+                    
+                    <!-- BOUTON FINAL WHATSAPP -->
+                    <button onclick="sendOrder()" class="btn-whatsapp">
+                        <i class="fab fa-whatsapp" style="font-size:1.2rem;"></i> Valider la commande
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-    <!-- ZOOM PLEIN ÉCRAN -->
-<div id="zoom-view" class="zoom-overlay" onclick="closeZoom()">
-    <span class="zoom-close">&times;</span>
-    <img id="zoom-img-target" class="zoom-img" src="">
-</div>
 
+    <!-- OVERLAY ZOOM IMAGE (Plein écran) -->
+    <div id="zoom-view" class="zoom-overlay" onclick="closeZoom()">
+        <span class="zoom-close">&times;</span>
+        <img id="zoom-img-target" class="zoom-img" src="">
+    </div>
+
+    <!-- Scripts -->
     <script src="shop.js"></script>
 </body>
 </html>
