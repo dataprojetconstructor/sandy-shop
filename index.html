@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boutique</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome pour les icones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- 1. HEADER PROFIL -->
+    <div class="profile-header" id="header-container">
+        <!-- Rempli par JS -->
+    </div>
+
+    <!-- 2. CATALOGUE -->
+    <div class="catalog-grid" id="catalog-container">
+        <!-- Rempli par JS -->
+    </div>
+
+    <!-- 3. MODALE PRODUIT + FORMULAIRE -->
+    <div id="product-modal" class="modal-overlay">
+        <div class="modal-card">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            
+            <!-- Image à gauche -->
+            <div class="modal-img-box">
+                <img id="m-img" class="modal-img" src="">
+            </div>
+
+            <!-- Infos à droite -->
+            <div class="modal-details">
+                <h2 id="m-title">Titre</h2>
+                <h3 id="m-price" style="color:#27ae60;">Prix</h3>
+                <p id="m-desc" style="color:#666; line-height:1.6;">Description</p>
+                
+                <button id="btn-show-form" class="btn-order" style="background:var(--primary);">
+                    🛒 Commander cet article
+                </button>
+
+                <!-- FORMULAIRE DE COMMANDE (Caché au début) -->
+                <div id="order-form-box" class="order-form">
+                    <h4>📝 Vos coordonnées</h4>
+                    <input type="text" id="c-name" class="form-input" placeholder="Votre Nom">
+                    <input type="tel" id="c-phone" class="form-input" placeholder="Numéro de téléphone">
+                    <input type="text" id="c-social" class="form-input" placeholder="Facebook/TikTok (Optionnel)">
+                    <input type="text" id="c-address" class="form-input" placeholder="Lieu de livraison">
+                    
+                    <button onclick="sendOrder()" class="btn-order">
+                        Valider la commande (WhatsApp)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="shop.js"></script>
+</body>
+</html>
