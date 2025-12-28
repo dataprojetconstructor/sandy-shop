@@ -5,38 +5,21 @@ let selectedSize = null;
 
 // 1. DÉMARRAGE
 document.addEventListener('DOMContentLoaded', async () => {
-    showShopSkeleton(); // Affiche l'animation de chargement
+    showShopSkeleton(); 
     await loadShopInfo();
     await loadProducts();
 });
 
-// --- SKELETON LOADER ---
+// SKELETON
 function showShopSkeleton() {
-    // Skeleton Header
     const header = document.getElementById('header-container');
-    header.innerHTML = `
-        <div class="skeleton-header">
-            <div class="sk-avatar"></div>
-            <div class="sk-line sk-w-50"></div>
-            <div class="sk-line sk-w-30"></div>
-        </div>`;
-
-    // Skeleton Catalogue
+    header.innerHTML = `<div class="skeleton-header"><div class="sk-avatar"></div><div class="sk-line sk-w-50"></div><div class="sk-line sk-w-30"></div></div>`;
     const grid = document.getElementById('catalog-container');
     grid.innerHTML = '';
-    for(let i=0; i<4; i++) {
-        grid.innerHTML += `
-            <div class="product-card" style="height:250px; pointer-events:none;">
-                <div class="product-img skeleton" style="height:180px;"></div>
-                <div class="product-info">
-                    <div class="sk-line sk-w-50" style="margin-bottom:5px;"></div>
-                    <div class="sk-line sk-w-30"></div>
-                </div>
-            </div>`;
-    }
+    for(let i=0; i<4; i++) grid.innerHTML += `<div class="product-card" style="height:250px; pointer-events:none;"><div class="product-img skeleton" style="height:180px;"></div><div class="product-info"><div class="sk-line sk-w-50" style="margin-bottom:5px;"></div><div class="sk-line sk-w-30"></div></div></div>`;
 }
 
-// 2. CHARGER INFOS BOUTIQUE
+// 2. INFOS BOUTIQUE
 async function loadShopInfo() {
     try {
         const res = await fetch('data/info.json');
@@ -46,22 +29,14 @@ async function loadShopInfo() {
         document.title = shopData.name;
         const header = document.getElementById('header-container');
         
-        // SEO Dynamique
-        let cleanLogo = shopData.logo || '';
-        if(cleanLogo.startsWith('/')) cleanLogo = cleanLogo.substring(1);
-        const absoluteLogo = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/' + cleanLogo;
-        
-        const ogTitle = document.getElementById('og-title');
-        const ogDesc = document.getElementById('og-desc');
-        const ogImage = document.getElementById('og-image');
-        
-        if(ogTitle) ogTitle.content = shopData.name;
-        if(ogDesc) ogDesc.content = shopData.bio;
-        if(ogImage) ogImage.content = absoluteLogo;
+        let logoSrc = shopData.logo || 'https://via.placeholder.com/150';
+        if(logoSrc.startsWith('/')) logoSrc = logoSrc.substring(1);
 
-        // Affichage Header
+        const ogTitle = document.getElementById('og-title');
+        if(ogTitle) ogTitle.content = shopData.name;
+
         header.innerHTML = `
-            <img src="${cleanLogo}" class="profile-img" onerror="this.src='https://via.placeholder.com/150'">
+            <img src="${logoSrc}" class="profile-img" onerror="this.src='https://via.placeholder.com/150'">
             <h1 class="profile-name">${shopData.name}</h1>
             <p class="profile-bio">${shopData.bio}</p>
             <div class="social-bar">
@@ -74,40 +49,32 @@ async function loadShopInfo() {
     } catch(e) { console.error(e); }
 }
 
-// 3. CHARGER PRODUITS
+// 3. PRODUITS & FILTRES
 async function loadProducts() {
     try {
         const res = await fetch('data/produits.json');
-        if(!res.ok) throw new Error("Produits introuvables");
         const data = await res.json();
         products = data.items ? data.items : data;
 
-        // Générer les filtres
         generateCategoryFilters();
-
-        // Afficher tout par défaut
         renderGrid(products);
-
     } catch(e) { console.error(e); }
 }
 
-// --- RENDU GRILLE (Avec Badge Promo) ---
 function renderGrid(items) {
     const grid = document.getElementById('catalog-container');
     grid.innerHTML = '';
 
     if(items.length === 0) {
-        grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit trouvé.</div>';
+        grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit.</div>';
         return;
     }
 
     items.forEach(p => {
         const price = Number(p.prix).toLocaleString() + ' F';
-        
         let imgPath = p.image || 'https://via.placeholder.com/300';
         if(imgPath.startsWith('/')) imgPath = imgPath.substring(1);
 
-        // Badge Promo
         let promoBadge = '';
         if(p.prix_original && p.prix_original > p.prix) {
             const percent = Math.round(((p.prix_original - p.prix) / p.prix_original) * 100);
@@ -122,23 +89,15 @@ function renderGrid(items) {
                     <div class="product-title">${p.nom}</div>
                     <div class="product-price">${price}</div>
                 </div>
-            </div>
-        `;
+            </div>`;
     });
 }
 
-// --- FILTRES CATÉGORIES ---
 function generateCategoryFilters() {
     const catContainer = document.getElementById('category-container');
     if(!catContainer) return;
-
     const categories = ['Tout'];
-    products.forEach(p => {
-        if(p.category && !categories.includes(p.category)) {
-            categories.push(p.category);
-        }
-    });
-
+    products.forEach(p => { if(p.category && !categories.includes(p.category)) categories.push(p.category); });
     catContainer.innerHTML = '';
     categories.forEach(cat => {
         const btn = document.createElement('button');
@@ -152,24 +111,21 @@ function generateCategoryFilters() {
 function filterByCategory(cat, btnElement) {
     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
     btnElement.classList.add('active');
-
     if(cat === 'Tout') renderGrid(products);
     else renderGrid(products.filter(p => p.category === cat));
 }
 
-// 4. OUVRIR PRODUIT (MODALE)
+// 4. OUVRIR PRODUIT
 window.openProduct = function(id) {
     currentProduct = products.find(p => p.id == id);
     if(!currentProduct) return;
 
-    // A. Images & Galerie
     let mainImg = currentProduct.image || 'https://via.placeholder.com/300';
     if(mainImg.startsWith('/')) mainImg = mainImg.substring(1);
     document.getElementById('m-img').src = mainImg;
 
     const galleryBox = document.getElementById('m-gallery');
     galleryBox.innerHTML = '';
-    
     let images = [mainImg];
     if(currentProduct.gallery) {
         currentProduct.gallery.forEach(g => {
@@ -178,14 +134,10 @@ window.openProduct = function(id) {
             images.push(path);
         });
     }
-
     if(images.length > 1) {
-        images.forEach(src => {
-            galleryBox.innerHTML += `<img src="${src}" class="gallery-thumb" onclick="changeMainImage('${src}')">`;
-        });
+        images.forEach(src => galleryBox.innerHTML += `<img src="${src}" class="gallery-thumb" onclick="changeMainImage('${src}')">`);
     }
 
-    // B. Infos & Prix Promo
     document.getElementById('m-title').textContent = currentProduct.nom;
     document.getElementById('m-desc').textContent = currentProduct.desc || "";
     
@@ -199,7 +151,6 @@ window.openProduct = function(id) {
         priceBox.innerHTML = `<h3 style="color:#FF9F1C; margin:0;">${price}</h3>`;
     }
 
-    // C. Tailles
     const sizeBox = document.getElementById('m-sizes-box');
     const sizeContainer = document.getElementById('m-sizes');
     selectedSize = null;
@@ -224,15 +175,11 @@ window.openProduct = function(id) {
         selectedSize = "Unique";
     }
 
-    // D. Reset UI
     document.getElementById('order-form-box').style.display = 'none';
     document.getElementById('btn-show-form').style.display = 'block';
-    
     const arrow = document.querySelector('.scroll-hint-down');
     if(arrow) arrow.style.display = 'block';
-
     document.getElementById('c-address').style.display = 'none';
-    document.getElementById('c-address').value = '';
     document.querySelectorAll('input[name="delivery"]')[0].checked = true;
     
     document.getElementById('product-modal').classList.add('modal-active');
@@ -243,20 +190,16 @@ window.closeModal = function() {
     if (modal) modal.classList.remove('modal-active');
 };
 
-window.changeMainImage = function(src) {
-    document.getElementById('m-img').src = src;
-};
+window.changeMainImage = function(src) { document.getElementById('m-img').src = src; };
 
-// 5. INTERACTIONS FORMULAIRE
+// 5. INTERACTION & COMMANDE
 const btnShow = document.getElementById('btn-show-form');
 if(btnShow) {
     btnShow.addEventListener('click', function() {
         this.style.display = 'none';
         document.getElementById('order-form-box').style.display = 'block';
-        
         const arrow = document.querySelector('.scroll-hint-down');
         if(arrow) arrow.style.display = 'none';
-        
         document.getElementById('order-form-box').scrollIntoView({behavior: 'smooth'});
     });
 }
@@ -267,47 +210,25 @@ window.toggleAddress = function(show) {
     else { field.style.display = 'none'; field.required = false; }
 };
 
-// 6. GESTION ZOOM
 window.openZoom = function(src) {
     const zoomOverlay = document.getElementById('zoom-view');
     const zoomImg = document.getElementById('zoom-img-target');
-    if(zoomOverlay && zoomImg) {
-        zoomImg.src = src;
-        zoomOverlay.classList.add('active');
-    }
+    if(zoomOverlay && zoomImg) { zoomImg.src = src; zoomOverlay.classList.add('active'); }
 };
+window.closeZoom = function() { document.getElementById('zoom-view').classList.remove('active'); };
 
-window.closeZoom = function() {
-    const zoomOverlay = document.getElementById('zoom-view');
-    if(zoomOverlay) zoomOverlay.classList.remove('active');
-};
-
-// 7. GESTION PARTAGE
-window.openShareModal = function() {
-    document.getElementById('share-modal').classList.add('modal-active');
-}
-
-window.closeShareModal = function() {
-    document.getElementById('share-modal').classList.remove('modal-active');
-}
-
+window.openShareModal = function() { document.getElementById('share-modal').classList.add('modal-active'); }
+window.closeShareModal = function() { document.getElementById('share-modal').classList.remove('modal-active'); }
 window.shareTo = function(platform) {
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`Regarde la boutique ${shopData.name || 'Top'} sur EM AREA ! 🛍️`);
+    const text = encodeURIComponent(`Regarde ${shopData.name} !`);
     let link = '';
-
     if (platform === 'whatsapp') link = `https://wa.me/?text=${text}%20${url}`;
     else if (platform === 'facebook') link = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-    else {
-        navigator.clipboard.writeText(window.location.href).then(() => alert("Lien copié !"));
-        closeShareModal();
-        return;
-    }
-    if (link) window.open(link, '_blank');
-    closeShareModal();
+    else { navigator.clipboard.writeText(window.location.href); alert("Copié !"); closeShareModal(); return; }
+    window.open(link, '_blank'); closeShareModal();
 }
 
-// 8. ENVOI COMMANDE
 window.sendOrder = function() {
     const name = document.getElementById('c-name').value;
     const code = document.getElementById('c-code').value;
@@ -317,10 +238,10 @@ window.sendOrder = function() {
 
     if(!name || !phone) return alert("Nom et Téléphone obligatoires.");
     if(currentProduct.sizes && (!selectedSize || selectedSize === "Unique")) return alert("Veuillez choisir une taille.");
-    if(deliveryMode === 'livraison' && !address) return alert("Adresse obligatoire pour la livraison.");
+    if(deliveryMode === 'livraison' && !address) return alert("Adresse obligatoire.");
 
     const fullPhone = code + phone;
-    const deliveryText = deliveryMode === 'boutique' ? "🏪 Récupération Boutique" : `🛵 Livraison : ${address}`;
+    const deliveryText = deliveryMode === 'boutique' ? "🏪 Boutique" : `🛵 Livraison : ${address}`;
     const sizeText = currentProduct.sizes ? `📏 Taille : ${selectedSize}` : "";
 
     const message = `
