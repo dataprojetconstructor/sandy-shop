@@ -1,352 +1,284 @@
-:root {
-    --primary: #FF9F1C;   /* Orange EM AREA */
-    --secondary: #2EC4B6; /* Turquoise */
-    --dark: #011627;
-    --light: #F8F9FA;
-    --white: #FFFFFF;
-    --shadow: 0 10px 30px rgba(0,0,0,0.08);
-    --radius: 16px;
+let shopData = {};
+let products = [];
+let currentProduct = null;
+let selectedSize = null;
+
+// 1. DÉMARRAGE
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadShopInfo();
+    await loadProducts();
+});
+
+// 2. INFO BOUTIQUE (Pas de changement)
+async function loadShopInfo() {
+    try {
+        const res = await fetch('data/info.json');
+        if(!res.ok) throw new Error("Info introuvable");
+        shopData = await res.json();
+        
+        const header = document.getElementById('header-container');
+        document.title = shopData.name;
+        
+        let logoSrc = shopData.logo || 'https://via.placeholder.com/150';
+        if(logoSrc.startsWith('/')) logoSrc = logoSrc.substring(1);
+
+        header.innerHTML = `
+            <img src="${logoSrc}" class="profile-img" onerror="this.src='https://via.placeholder.com/150'">
+            <h1 class="profile-name">${shopData.name}</h1>
+            <p class="profile-bio">${shopData.bio}</p>
+            <div class="social-bar">
+                ${shopData.socials.facebook ? `<a href="${shopData.socials.facebook}" class="social-btn"><i class="fab fa-facebook-f"></i></a>` : ''}
+                ${shopData.socials.instagram ? `<a href="${shopData.socials.instagram}" class="social-btn"><i class="fab fa-instagram"></i></a>` : ''}
+                ${shopData.socials.tiktok ? `<a href="${shopData.socials.tiktok}" class="social-btn"><i class="fab fa-tiktok"></i></a>` : ''}
+                <a href="https://wa.me/${shopData.whatsapp_number}" class="social-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        `;
+    } catch(e) { console.error(e); }
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+// 3. CHARGER PRODUITS + GÉNÉRER FILTRES
+async function loadProducts() {
+    try {
+        const res = await fetch('data/produits.json');
+        const data = await res.json();
+        products = data.items ? data.items : data;
 
-body { 
-    font-family: 'Poppins', sans-serif; 
-    background: var(--light); 
-    color: var(--dark); 
-    margin: 0; 
-    padding-bottom: 50px;
+        // Générer les filtres
+        generateCategoryFilters();
+        
+        // Afficher tous les produits par défaut
+        renderGrid(products);
+
+    } catch(e) { console.error(e); }
 }
 
-a { text-decoration: none; color: inherit; transition: 0.2s; }
-img { max-width: 100%; display: block; }
+// --- NOUVEAU : RENDU DE LA GRILLE AVEC BADGE PROMO ---
+function renderGrid(items) {
+    const grid = document.getElementById('catalog-container');
+    grid.innerHTML = '';
 
-/* HEADER PROFIL (Style Carte Pro) */
-.profile-header {
-    background: var(--white);
-    padding: 40px 20px;
-    text-align: center;
-    border-bottom-left-radius: 30px;
-    border-bottom-right-radius: 30px;
-    box-shadow: var(--shadow);
-    margin-bottom: 30px;
-    position: relative;
-    overflow: hidden;
+    if(items.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px;">Aucun produit trouvé.</div>';
+        return;
+    }
+
+    items.forEach(p => {
+        const price = Number(p.prix).toLocaleString() + ' F';
+        
+        let imgPath = p.image || 'https://via.placeholder.com/300';
+        if(imgPath.startsWith('/')) imgPath = imgPath.substring(1);
+
+        // LOGIQUE PROMO (Badge)
+        let promoBadge = '';
+        if(p.prix_original && p.prix_original > p.prix) {
+            // Calcul pourcentage (Optionnel, sinon juste "PROMO")
+            const percent = Math.round(((p.prix_original - p.prix) / p.prix_original) * 100);
+            promoBadge = `<div class="card-promo-badge">-${percent}%</div>`;
+        }
+
+        grid.innerHTML += `
+            <div class="product-card" onclick="openProduct('${p.id}')">
+                ${promoBadge} <!-- Le badge rouge -->
+                <img src="${imgPath}" class="product-img" onerror="this.src='https://via.placeholder.com/300'">
+                <div class="product-info">
+                    <div class="product-title">${p.nom}</div>
+                    <div class="product-price">${price}</div>
+                </div>
+            </div>
+        `;
+    });
 }
 
-/* Petit effet décoratif en haut */
-.profile-header::before {
-    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
-    background: linear-gradient(90deg, var(--primary), #ff6b6b);
+// --- NOUVEAU : FILTRES PAR CATÉGORIE ---
+function generateCategoryFilters() {
+    const catContainer = document.getElementById('category-container');
+    if(!catContainer) return;
+
+    // Récupérer toutes les catégories uniques
+    const categories = ['Tout'];
+    products.forEach(p => {
+        if(p.category && !categories.includes(p.category)) {
+            categories.push(p.category);
+        }
+    });
+
+    catContainer.innerHTML = '';
+    categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'category-btn' + (cat === 'Tout' ? ' active' : '');
+        btn.textContent = cat;
+        btn.onclick = () => filterByCategory(cat, btn);
+        catContainer.appendChild(btn);
+    });
 }
 
-.profile-img {
-    width: 110px; height: 110px; object-fit: cover;
-    border-radius: 35%; /* Squircle (forme moderne) */
-    border: 4px solid var(--white);
-    box-shadow: 0 5px 15px rgba(255, 159, 28, 0.3);
-    margin: 0 auto 15px;
-    background: #eee;
+function filterByCategory(cat, btnElement) {
+    // Gestion active class
+    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+    btnElement.classList.add('active');
+
+    if(cat === 'Tout') {
+        renderGrid(products);
+    } else {
+        const filtered = products.filter(p => p.category === cat);
+        renderGrid(filtered);
+    }
 }
 
-.profile-name { font-size: 1.5rem; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
-.profile-bio { font-size: 0.9rem; color: #666; max-width: 500px; margin: 10px auto; line-height: 1.5; }
+// 4. OUVRIR PRODUIT (Reste identique)
+window.openProduct = function(id) {
+    currentProduct = products.find(p => p.id == id);
+    if(!currentProduct) return;
 
-/* BOUTONS SOCIAUX */
-.social-bar { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-.social-btn {
-    width: 45px; height: 45px; border-radius: 12px; background: #f4f6f8; color: #555;
-    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-}
-.social-btn:hover { background: var(--primary); color: white; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(255, 159, 28, 0.4); }
-.social-btn.whatsapp { background: #E8F5E9; color: #25D366; } /* Vert spécial WhatsApp */
+    let mainImg = currentProduct.image || 'https://via.placeholder.com/300';
+    if(mainImg.startsWith('/')) mainImg = mainImg.substring(1);
+    document.getElementById('m-img').src = mainImg;
 
-/* CATALOGUE (GRILLE FLUIDE) */
-.catalog-title { text-align: center; font-weight: 800; font-size: 1.2rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+    const galleryBox = document.getElementById('m-gallery');
+    galleryBox.innerHTML = '';
+    let images = [mainImg];
+    if(currentProduct.gallery) {
+        currentProduct.gallery.forEach(g => {
+            let path = g.img;
+            if(path.startsWith('/')) path = path.substring(1);
+            images.push(path);
+        });
+    }
+    if(images.length > 1) {
+        images.forEach(src => {
+            galleryBox.innerHTML += `<img src="${src}" class="gallery-thumb" onclick="changeMainImage('${src}')">`;
+        });
+    }
 
-.catalog-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;
-    padding: 0 15px; max-width: 1000px; margin: 0 auto;
-}
-@media (min-width: 768px) { .catalog-grid { grid-template-columns: repeat(4, 1fr); } }
+    document.getElementById('m-title').textContent = currentProduct.nom;
+    document.getElementById('m-desc').textContent = currentProduct.desc || "";
+    
+    const priceBox = document.getElementById('m-price-box');
+    const price = Number(currentProduct.prix).toLocaleString() + ' F';
+    
+    if(currentProduct.prix_original && currentProduct.prix_original > currentProduct.prix) {
+        const old = Number(currentProduct.prix_original).toLocaleString() + ' F';
+        priceBox.innerHTML = `<span class="old-price">${old}</span> <span class="promo-price-heart">${price}</span>`;
+    } else {
+        priceBox.innerHTML = `<h3 style="color:#FF9F1C; margin:0;">${price}</h3>`;
+    }
 
-.product-card {
-    background: var(--white); border-radius: var(--radius); overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #f0f0f0;
-    cursor: pointer; transition: transform 0.2s;
-}
-.product-card:active { transform: scale(0.98); }
+    const sizeBox = document.getElementById('m-sizes-box');
+    const sizeContainer = document.getElementById('m-sizes');
+    selectedSize = null;
 
-.product-img { width: 100%; height: 180px; object-fit: cover; background: #eee; }
-.product-info { padding: 12px; }
-.product-title { font-size: 0.9rem; font-weight: 600; margin: 0 0 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.product-price { color: var(--primary); font-weight: 800; font-size: 1rem; }
+    if(currentProduct.sizes) {
+        sizeBox.style.display = 'block';
+        sizeContainer.innerHTML = '';
+        const sizes = currentProduct.sizes.split(',').map(s => s.trim());
+        sizes.forEach(s => {
+            const btn = document.createElement('div');
+            btn.className = 'size-btn';
+            btn.textContent = s;
+            btn.onclick = () => {
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedSize = s;
+            };
+            sizeContainer.appendChild(btn);
+        });
+    } else {
+        sizeBox.style.display = 'none';
+        selectedSize = "Unique";
+    }
 
-/* MODALE (FENÊTRE) */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85); z-index: 2000;
-    display: none; justify-content: center; align-items: flex-end; /* Mobile : en bas */
-    opacity: 0; transition: opacity 0.3s;
-}
-@media (min-width: 768px) { .modal-overlay { align-items: center; } } /* PC : au centre */
+    document.getElementById('order-form-box').style.display = 'none';
+    document.getElementById('btn-show-form').style.display = 'block';
+    const arrow = document.querySelector('.scroll-hint-down');
+    if(arrow) arrow.style.display = 'block';
+    
+    document.getElementById('product-modal').classList.add('modal-active');
+};
 
-.modal-active { display: flex; opacity: 1; }
+window.closeModal = function() {
+    document.getElementById('product-modal').classList.remove('modal-active');
+};
 
-.modal-card {
-    background: var(--white); width: 100%; max-width: 500px;
-    border-top-left-radius: 25px; border-top-right-radius: 25px;
-    padding: 25px; position: relative; max-height: 90vh; overflow-y: auto;
-    animation: slideUp 0.3s ease-out;
-}
-@media (min-width: 768px) { .modal-card { border-radius: 20px; } }
+window.changeMainImage = function(src) {
+    document.getElementById('m-img').src = src;
+};
 
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-.close-btn { 
-    position: absolute; top: 15px; right: 20px; background: #f0f0f0; 
-    width: 30px; height: 30px; border-radius: 50%; display: flex; 
-    align-items: center; justify-content: center; cursor: pointer; font-weight: bold; 
-}
-
-/* 1. CORRECTION IMAGE MODALE (Vue complète) */
-.modal-img-box {
-    flex: 1; 
-    background: #f8f9fa; /* Fond clair au lieu de noir */
-    display: flex; flex-direction: column; /* Pour mettre la galerie en dessous */
-    align-items: center; justify-content: center;
-    padding: 10px;
-}
-.modal-img {
-    width: 100%; height: 300px; /* Hauteur fixe */
-    object-fit: contain; /* L'image ne sera JAMAIS coupée */
-    border-radius: 8px;
-}
-
-/* 2. GALERIE PHOTOS */
-.gallery-container {
-    display: flex; gap: 10px; margin-top: 10px;
-    overflow-x: auto; width: 100%; padding: 5px;
-}
-.gallery-thumb {
-    width: 50px; height: 50px; border-radius: 6px;
-    object-fit: cover; border: 2px solid transparent; cursor: pointer;
-}
-.gallery-thumb.active { border-color: var(--primary); }
-
-/* 3. PRIX PROMO (Animation Cœur) */
-.price-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
-.old-price { text-decoration: line-through; color: #999; font-size: 0.9rem; }
-.promo-price-heart {
-    color: #e74c3c; font-weight: 800; font-size: 1.2rem;
-    animation: heartBeat 1.5s infinite;
-}
-@keyframes heartBeat {
-    0% { transform: scale(1); }
-    15% { transform: scale(1.2); }
-    30% { transform: scale(1); }
-    45% { transform: scale(1.2); }
-    100% { transform: scale(1); }
+// 5. GESTION FORMULAIRE & UTILS
+const btnShow = document.getElementById('btn-show-form');
+if(btnShow) {
+    btnShow.addEventListener('click', function() {
+        this.style.display = 'none';
+        document.getElementById('order-form-box').style.display = 'block';
+        const arrow = document.querySelector('.scroll-hint-down');
+        if(arrow) arrow.style.display = 'none';
+        document.getElementById('order-form-box').scrollIntoView({behavior: 'smooth'});
+    });
 }
 
-/* 4. SÉLECTEUR TAILLES */
-.size-selector { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
-.size-btn {
-    padding: 8px 15px; border: 1px solid #ddd; border-radius: 6px;
-    cursor: pointer; font-size: 0.9rem; background: white;
-}
-.size-btn.selected {
-    background: var(--dark); color: white; border-color: var(--dark);
+window.toggleAddress = function(show) {
+    const field = document.getElementById('c-address');
+    if(show) { field.style.display = 'block'; field.required = true; } 
+    else { field.style.display = 'none'; field.required = false; }
+};
+
+window.openZoom = function(src) {
+    const zoomOverlay = document.getElementById('zoom-view');
+    const zoomImg = document.getElementById('zoom-img-target');
+    if(zoomOverlay && zoomImg) {
+        zoomImg.src = src;
+        zoomOverlay.classList.add('active');
+    }
+};
+
+window.closeZoom = function() {
+    const zoomOverlay = document.getElementById('zoom-view');
+    if(zoomOverlay) zoomOverlay.classList.remove('active');
+};
+
+// GESTION PARTAGE
+window.openShareModal = function() { document.getElementById('share-modal').classList.add('modal-active'); }
+window.closeShareModal = function() { document.getElementById('share-modal').classList.remove('modal-active'); }
+window.shareTo = function(platform) {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`Regarde cette boutique : ${shopData.name} !`);
+    let link = '';
+    if (platform === 'whatsapp') link = `https://wa.me/?text=${text}%20${url}`;
+    else if (platform === 'facebook') link = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+    else { navigator.clipboard.writeText(window.location.href); alert("Copié !"); closeShareModal(); return; }
+    if (link) window.open(link, '_blank');
+    closeShareModal();
 }
 
-/* 5. GROUPE TÉLÉPHONE (Indicatif + Numéro) */
-.phone-group { display: flex; gap: 5px; }
-.country-select {
-    width: 80px; padding: 10px; border: 1px solid #ddd; border-radius: 8px;
-    background: #f9f9f9;
-}
+window.sendOrder = function() {
+    const name = document.getElementById('c-name').value;
+    const code = document.getElementById('c-code').value;
+    const phone = document.getElementById('c-phone').value;
+    const deliveryMode = document.querySelector('input[name="delivery"]:checked').value;
+    const address = document.getElementById('c-address').value;
 
-/* 6. OPTIONS LIVRAISON */
-.delivery-options { display: flex; gap: 15px; margin-bottom: 15px; }
-.radio-label {
-    display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer;
-    background: #f9f9f9; padding: 10px; border-radius: 8px; width: 100%; border: 1px solid #eee;
-}
-.radio-label input { accent-color: var(--primary); transform: scale(1.2); }
-/* Cache l'adresse par défaut */
-#address-field { display: none; }
+    if(!name || !phone) return alert("Nom et Téléphone obligatoires.");
+    if(currentProduct.sizes && (!selectedSize || selectedSize === "Unique")) return alert("Veuillez choisir une taille.");
+    if(deliveryMode === 'livraison' && !address) return alert("Adresse obligatoire.");
 
-/* INPUTS FORMULAIRE */
-.form-input { 
-    width: 100%; padding: 12px 15px; border: 1px solid #eee; background: #f9f9f9;
-    border-radius: 10px; margin-bottom: 10px; font-family: inherit;
-}
-/* --- CORRECTION FORMULAIRE --- */
+    const fullPhone = code + phone;
+    const deliveryText = deliveryMode === 'boutique' ? "🏪 Boutique" : `🛵 Livraison : ${address}`;
+    const sizeText = currentProduct.sizes ? `📏 Taille : ${selectedSize}` : "";
 
-/* 1. Groupe Téléphone (Plus d'espace pour l'indicatif) */
-.phone-group {
-    display: flex;
-    gap: 10px; /* Espace entre les deux cases */
-}
+    const message = `
+*NOUVELLE COMMANDE* 🛍️
+---------------------------
+🛒 *${currentProduct.nom}*
+💰 ${currentProduct.prix} F
+${sizeText}
+---------------------------
+👤 *CLIENT :*
+Nom : ${name}
+📞 ${fullPhone}
+🚚 ${deliveryText}
+---------------------------
+_Merci de confirmer._`.trim();
 
-.country-select {
-    flex: 0 0 110px; /* Largeur FIXE de 110px (suffisant pour 🇹🇬 +228) */
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    background: #fff;
-    font-size: 0.95rem;
-    cursor: pointer;
-}
-
-/* L'input numéro prend tout le reste de la place */
-.phone-group .form-input {
-    flex: 1;
-    margin-bottom: 0; /* On gère la marge via le parent */
-}
-
-/* 2. Bouton "Valider sur WhatsApp" (Style Pro) */
-.btn-whatsapp {
-    width: 100%;
-    padding: 15px;
-    background: #25D366; /* Le vrai vert WhatsApp */
-    color: white;
-    border: none;
-    border-radius: 50px; /* Forme pilule */
-    font-weight: 800;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: 20px;
-    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4); /* Ombre verte */
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px; /* Espace pour l'icône */
-}
-
-.btn-whatsapp:hover {
-    background: #20bd5a;
-    transform: translateY(-2px);
-}
-
-.btn-whatsapp:active {
-    transform: scale(0.98);
-}
-
-/* --- AMÉLIORATIONS UX MODALE --- */
-
-/* 1. CROIX FIXE (STICKY) */
-.close-btn {
-    position: sticky; /* Reste collé */
-    top: 10px;
-    left: 90%; /* Pour le placer à droite */
-    margin-bottom: -30px; /* Pour ne pas pousser le contenu */
-    background: white;
-    width: 35px; height: 35px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-weight: bold; font-size: 1.2rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    z-index: 100; /* Toujours au dessus */
-    border: 1px solid #eee;
-}
-
-/* 2. FLÈCHE DE DÉFILEMENT (SCROLL HINT) */
-.scroll-hint-down {
-    text-align: center;
-    color: var(--primary);
-    font-size: 1.5rem;
-    margin-top: 10px;
-    animation: bounceDown 2s infinite;
-    cursor: pointer;
-}
-
-@keyframes bounceDown {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-10px); }
-    60% { transform: translateY(-5px); }
-}
-
-/* 3. BOUTON COMMANDER (BAT TEMENT DE CŒUR) */
-.btn-pulse {
-    background: linear-gradient(45deg, #FF9F1C, #ffbe5b);
-    animation: pulseOrder 1.5s infinite;
-    box-shadow: 0 0 0 0 rgba(255, 159, 28, 0.7);
-}
-
-@keyframes pulseOrder {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 159, 28, 0.7); }
-    70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(255, 159, 28, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 159, 28, 0); }
-}
-
-/* 4. ZOOM IMAGE (OVERLAY) */
-.zoom-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.95); z-index: 5000;
-    display: none; justify-content: center; align-items: center;
-}
-.zoom-overlay.active { display: flex; animation: fadeIn 0.3s; }
-.zoom-img { max-width: 95%; max-height: 95%; object-fit: contain; }
-.zoom-close {
-    position: absolute; top: 20px; right: 20px; color: white;
-    font-size: 2rem; cursor: pointer;
-}
-
-/* 5. Agrandir curseur image modale */
-.modal-img { cursor: zoom-in; }
-/* --- 1. BOUTONS FLOTTANTS (Retour & Partage) --- */
-.nav-btn-fixed {
-    position: fixed; top: 15px; z-index: 900;
-    width: 40px; height: 40px; border-radius: 50%;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(5px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--dark); font-size: 1.1rem; border: 1px solid #eee;
-    cursor: pointer; transition: transform 0.2s;
-}
-.nav-btn-fixed:active { transform: scale(0.9); }
-
-.btn-back { left: 15px; color: var(--primary); }
-.btn-share { right: 15px; color: var(--dark); }
-
-/* --- 2. MODALE PARTAGE --- */
-.share-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;
-    padding: 10px 0;
-}
-.share-item {
-    display: flex; flex-direction: column; align-items: center; gap: 5px;
-    cursor: pointer;
-}
-.share-icon {
-    width: 50px; height: 50px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.5rem; color: white; transition: transform 0.2s;
-}
-.share-item:active .share-icon { transform: scale(0.9); }
-.share-label { font-size: 0.75rem; color: #666; }
-
-/* Couleurs des réseaux */
-.bg-wa { background: #25D366; }
-.bg-fb { background: #1877F2; }
-.bg-insta { background: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d); }
-.bg-copy { background: #555; }
-
-/* --- 3. SKELETON LOADER (Boutique) --- */
-.skeleton-header {
-    padding: 40px; text-align: center; background: white;
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
-}
-.sk-avatar { width: 110px; height: 110px; border-radius: 35%; background: #eee; }
-.sk-line { height: 15px; background: #eee; border-radius: 4px; }
-.sk-w-50 { width: 50%; } .sk-w-30 { width: 30%; }
-
-/* Animation Shine */
-.sk-avatar, .sk-line, .product-img.skeleton {
-    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
-    background-size: 200% 100%; animation: 1.5s shine linear infinite;
-}
-
+    const url = `https://wa.me/${shopData.whatsapp_number}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+    closeModal();
+};
