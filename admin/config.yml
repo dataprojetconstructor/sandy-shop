@@ -5,7 +5,7 @@ backend:
   # On enlève app_id et auth_type. C'est tout !
 
 media_folder: "assets/img"
-public_folder: "/assets/img"
+public_folder: "assets/img"
 
 site_url: "https://dataprojetconstructor.github.io/sandy-shop"
 display_url: "https://dataprojetconstructor.github.io/sandy-shop"
