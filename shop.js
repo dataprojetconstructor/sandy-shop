@@ -40,7 +40,7 @@ function showToast(message, type = 'success') {
         iconEl.textContent = '⚠️';
         toast.style.backgroundColor = "rgba(220, 53, 69, 0.95)";
     } else {
-        iconEl.textContent = '✅';
+        iconEl.textContent = ' ';
         toast.style.backgroundColor = "rgba(30, 30, 30, 0.95)";
     }
     
