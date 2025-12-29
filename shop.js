@@ -17,6 +17,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+// --- GESTION MODE SOMBRE INTELLIGENTE ---
+function checkDarkMode() {
+    // 1. On regarde si l'URL contient ?theme=dark (Vient de EM AREA)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlTheme = urlParams.get('theme');
+
+    if (urlTheme) {
+        // Si oui, on l'applique et on le sauvegarde dans la mémoire de CE site
+        if (urlTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('em_theme', 'dark');
+        } else {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('em_theme', 'light');
+        }
+    } else {
+        // 2. Sinon, on regarde la mémoire locale habituelle
+        if(localStorage.getItem('em_theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    }
+}
+
 // --- GESTION NOTIFICATIONS (TOAST) ---
 function showToast(message, type = 'success') {
     let toast = document.getElementById("toast-notification");
