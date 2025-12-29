@@ -1,10 +1,10 @@
 backend:
   name: github
-  repo: dataprojetconstructor/sandy-shop # Remplace par le bon repo
+  repo: dataprojetconstructor/sandy-shop
   branch: main
 
 media_folder: "assets/img"
-public_folder: "assets/img" # IMPORTANT : Pas de slash au début
+public_folder: "assets/img"
 
 site_url: "https://dataprojetconstructor.github.io/sandy-shop"
 display_url: "https://dataprojetconstructor.github.io/sandy-shop"
@@ -27,18 +27,25 @@ collections:
             fields:
               - { label: "ID Unique", name: "id", widget: "uuid" }
               - { label: "Nom du produit", name: "nom", widget: "string" }
+              
+              # NOUVEAU : La catégorie est importante maintenant
               - { label: "Catégorie", name: "category", widget: "select", options: ["Tout", "Chaussures", "Vêtements", "Sacs", "Accessoires", "Beauté", "Enfants"], default: "Tout" }
+              
               - { label: "Prix Actuel (CFA)", name: "prix", widget: "number" }
               - { label: "Prix Original (Optionnel)", name: "prix_original", widget: "number", required: false }
-              - { label: "Image Principale", name: "image", widget: "image" }
               
-              - label: "Galerie Photos (Optionnel)"
-                name: "gallery"
+              - { label: "Image Principale (Par défaut)", name: "image", widget: "image" }
+              
+              # NOUVEAU SYSTÈME : VARIANTES (Couleurs + Photos)
+              - label: "Couleurs / Variantes (Optionnel)"
+                name: "variants"
                 widget: "list"
+                summary: "{{fields.name}}"
                 fields:
-                  - { label: "Photo", name: "img", widget: "image" }
+                  - { label: "Nom (ex: Rouge, Bleu...)", name: "name", widget: "string" }
+                  - { label: "Photo correspondante", name: "img", widget: "image" }
 
-              - { label: "Tailles (séparer par virgule)", name: "sizes", widget: "string", required: false }
+              - { label: "Tailles (ex: 38, 39, 40)", name: "sizes", widget: "string", required: false }
               - { label: "Description", name: "desc", widget: "text" }
               - { label: "Est-ce Nouveau ?", name: "is_new", widget: "boolean", default: true }
               - { label: "Mettre en Star ?", name: "is_star", widget: "boolean", default: false }
