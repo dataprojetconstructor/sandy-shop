@@ -144,24 +144,34 @@ img { max-width: 100%; display: block; }
     z-index: 100; border: 1px solid #eee;
 }
 
-/* COLONNE GAUCHE (Image + Galerie) */
-.modal-left-col { flex: 1; display: flex; flex-direction: column; width: 100%; }
+/* --- CORRECTION VISUELLE GALERIE --- */
 
-/* Zone Image (Zoom) */
-.modal-img-box { 
-    background: #f8f9fa; padding: 10px; border-radius: 12px; margin-bottom: 10px; 
-    position: relative; overflow: hidden; /* Empêche l'image de sortir au zoom */
-    height: 300px; display: flex; align-items: center; justify-content: center;
-}
-.modal-img { 
-    width: 100%; height: 100%; object-fit: contain; 
-    cursor: crosshair; transition: transform 0.1s ease-out; 
+.modal-left-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column; /* Empile l'image et la galerie verticalement */
+    gap: 10px; /* Espace entre la grande image et les petites */
 }
 
-/* Galerie (En dessous) */
-.gallery-container { 
-    display: flex; gap: 10px; overflow-x: auto; 
-    padding: 5px; justify-content: flex-start;
+/* La galerie en ligne horizontale */
+.gallery-container {
+    display: flex;
+    flex-direction: row; /* Force l'horizontale */
+    justify-content: center; /* Centre les petites images */
+    gap: 10px;
+    width: 100%;
+    padding: 5px 0;
+}
+
+.modal-img-box {
+    /* Le reste ne change pas */
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 12px;
+    height: 350px; /* On augmente un peu la hauteur pour la grande image */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .gallery-item { cursor: pointer; display: flex; flex-direction: column; align-items: center; transition: 0.2s; }
 .gallery-thumb { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 2px solid transparent; background: white; }
