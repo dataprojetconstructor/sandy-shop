@@ -6,7 +6,6 @@ let selectedVariant = null;
 
 // 1. DÉMARRAGE
 document.addEventListener('DOMContentLoaded', async () => {
-    checkDarkMode(); // Vérifie si le mode sombre doit être activé
     showShopSkeleton(); 
     
     try {
@@ -18,12 +17,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// --- GESTION MODE SOMBRE ---
-function checkDarkMode() {
-    // Vérifie si l'utilisateur a activé le mode sombre sur le site principal
-    if(localStorage.getItem('em_theme') === 'dark') {
-        document.body.classList.add('dark-mode');
+// --- GESTION NOTIFICATIONS (TOAST) ---
+function showToast(message, type = 'success') {
+    const toast = document.getElementById("toast-notification");
+    if (!toast) return alert(message); // Fallback si le HTML manque
+
+    const msgEl = toast.querySelector('.toast-message');
+    const iconEl = toast.querySelector('.toast-icon');
+    
+    msgEl.textContent = message;
+    
+    if (type === 'error') {
+        iconEl.textContent = '⚠️';
+        toast.style.backgroundColor = "rgba(220, 53, 69, 0.95)"; // Rouge pour erreur
+    } else {
+        iconEl.textContent = '✅';
+        toast.style.backgroundColor = "rgba(30, 30, 30, 0.95)"; // Noir pour succès
     }
+    
+    toast.className = "toast show";
+    
+    // Cacher après 3 secondes
+    setTimeout(function(){ 
+        toast.className = toast.className.replace("show", ""); 
+        // Reset couleur
+        setTimeout(() => toast.style.backgroundColor = "", 300);
+    }, 3000);
 }
 
 // --- SKELETON LOADER ---
@@ -155,7 +174,7 @@ function filterByCategory(cat, btnElement) {
     else renderGrid(products.filter(p => p.category === cat));
 }
 
-// 4. OUVRIR PRODUIT (Modale)
+// 4. OUVRIR PRODUIT (MODALE)
 window.openProduct = function(id) {
     currentProduct = products.find(p => p.id == id);
     if(!currentProduct) return;
@@ -170,7 +189,7 @@ window.openProduct = function(id) {
         imgEl.style.transform = "none";
     }
 
-    // B. Galerie & Variantes (CORRIGÉ HORIZONTAL)
+    // B. Galerie & Variantes
     const galleryBox = document.getElementById('m-gallery');
     if (galleryBox) {
         galleryBox.innerHTML = '';
@@ -191,25 +210,25 @@ window.openProduct = function(id) {
         }
 
         if(variants.length > 0) {
-            // Ajoute l'image principale au début
             variants.unshift({ src: mainImg, name: 'Principal' });
             
             variants.forEach((v, index) => {
-                // Le premier est actif par défaut
                 const activeClass = index === 0 ? 'active' : '';
-                
                 galleryBox.innerHTML += `
                     <div class="gallery-item ${activeClass}" onclick="selectVariant('${v.src}', '${v.name}', this)">
                         <img src="${v.src}" class="gallery-thumb">
-                        <span class="gallery-label" style="font-size:0.6rem; color:#888; font-weight:600; margin-top:3px;">${v.name}</span>
+                        <span class="gallery-label">${v.name}</span>
                     </div>`;
             });
         }
     }
 
-    // C. Textes & Prix
-    document.getElementById('m-title').textContent = currentProduct.nom;
-    document.getElementById('m-desc').textContent = currentProduct.desc || "";
+    // C. Textes
+    const titleEl = document.getElementById('m-title');
+    if(titleEl) titleEl.textContent = currentProduct.nom;
+    
+    const descEl = document.getElementById('m-desc');
+    if(descEl) descEl.textContent = currentProduct.desc || "";
     
     const priceBox = document.getElementById('m-price-box');
     if(priceBox) {
@@ -266,7 +285,7 @@ window.openProduct = function(id) {
     if(modal) modal.classList.add('active');
 };
 
-// SÉLECTION VARIANTE (Changement Image + Style)
+// SÉLECTION VARIANTE
 window.selectVariant = function(src, name, el) {
     const imgEl = document.getElementById('m-img');
     if(imgEl) {
@@ -274,10 +293,8 @@ window.selectVariant = function(src, name, el) {
         imgEl.style.transform = "none";
     }
     
-    // Si ce n'est pas l'image principale, on stocke le nom pour la commande
     selectedVariant = name !== 'Principal' ? name : null;
     
-    // Mise à jour visuelle (Bordure)
     document.querySelectorAll('.gallery-item').forEach(item => item.classList.remove('active'));
     if(el) el.classList.add('active');
 };
@@ -361,13 +378,19 @@ window.shareTo = function(platform) {
     const url = encodeURIComponent(window.location.href);
     const text = encodeURIComponent(`Regarde ${shopData.name || ''} !`);
     let link = '';
+
     if (platform === 'whatsapp') link = `https://wa.me/?text=${text}%20${url}`;
     else if (platform === 'facebook') link = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-    else { navigator.clipboard.writeText(window.location.href); alert("Copié !"); closeShareModal(); return; }
-    window.open(link, '_blank'); closeShareModal();
+    else {
+        navigator.clipboard.writeText(window.location.href).then(() => showToast("Lien copié dans le presse-papier !"));
+        closeShareModal();
+        return;
+    }
+    window.open(link, '_blank');
+    closeShareModal();
 }
 
-// COMMANDE
+// COMMANDE (Avec Toasts)
 window.sendOrder = function() {
     const name = document.getElementById('c-name').value;
     const code = document.getElementById('c-code').value;
@@ -376,9 +399,9 @@ window.sendOrder = function() {
     const deliveryMode = deliveryInput ? deliveryInput.value : 'boutique';
     const address = document.getElementById('c-address').value;
 
-    if(!name || !phone) return alert("Nom et Téléphone obligatoires.");
-    if(currentProduct.sizes && (!selectedSize || selectedSize === "Unique")) return alert("Veuillez choisir une taille.");
-    if(deliveryMode === 'livraison' && !address) return alert("Adresse obligatoire.");
+    if(!name || !phone) return showToast("Nom et Téléphone obligatoires !", "error");
+    if(currentProduct.sizes && (!selectedSize || selectedSize === "Unique")) return showToast("Veuillez choisir une taille !", "error");
+    if(deliveryMode === 'livraison' && !address) return showToast("Adresse obligatoire pour la livraison !", "error");
 
     const fullPhone = code + phone;
     const deliveryText = deliveryMode === 'boutique' ? "🏪 Boutique" : `🛵 Livraison : ${address}`;
@@ -404,28 +427,3 @@ _Merci de confirmer._`.trim();
     window.open(url, '_blank');
     closeModal();
 };
-
-/* --- GESTION NOTIFICATIONS TOAST --- */
-function showToast(message, type = 'success') {
-    const toast = document.getElementById("toast-notification");
-    const msgEl = toast.querySelector('.toast-message');
-    const iconEl = toast.querySelector('.toast-icon');
-    
-    // Configurer le message
-    msgEl.textContent = message;
-    
-    // Changer l'icône selon le type
-    if (type === 'error') {
-        iconEl.textContent = '⚠️';
-    } else {
-        iconEl.textContent = '✅';
-    }
-    
-    // Afficher
-    toast.className = "toast show";
-    
-    // Cacher après 3 secondes
-    setTimeout(function(){ 
-        toast.className = toast.className.replace("show", ""); 
-    }, 3000);
-}
