@@ -404,3 +404,28 @@ _Merci de confirmer._`.trim();
     window.open(url, '_blank');
     closeModal();
 };
+
+/* --- GESTION NOTIFICATIONS TOAST --- */
+function showToast(message, type = 'success') {
+    const toast = document.getElementById("toast-notification");
+    const msgEl = toast.querySelector('.toast-message');
+    const iconEl = toast.querySelector('.toast-icon');
+    
+    // Configurer le message
+    msgEl.textContent = message;
+    
+    // Changer l'icône selon le type
+    if (type === 'error') {
+        iconEl.textContent = '⚠️';
+    } else {
+        iconEl.textContent = '✅';
+    }
+    
+    // Afficher
+    toast.className = "toast show";
+    
+    // Cacher après 3 secondes
+    setTimeout(function(){ 
+        toast.className = toast.className.replace("show", ""); 
+    }, 3000);
+}
