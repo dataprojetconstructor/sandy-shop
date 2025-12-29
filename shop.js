@@ -7,24 +7,15 @@ let selectedVariant = null;
 // 1. DÉMARRAGE
 document.addEventListener('DOMContentLoaded', async () => {
     showShopSkeleton(); 
-    
-    // On lance les chargements
-    try {
-        await loadShopInfo();
-        await loadProducts();
-        initZoom(); // Active la loupe une fois tout chargé
-    } catch (error) {
-        console.error("Erreur critique :", error);
-        alert("Une erreur est survenue lors du chargement de la boutique. Vérifiez la console (F12).");
-    }
+    await loadShopInfo();
+    await loadProducts();
+    initZoom();
 });
 
-// --- SKELETON LOADER ---
+// SKELETON
 function showShopSkeleton() {
     const header = document.getElementById('header-container');
-    if(header) {
-        header.innerHTML = `<div class="skeleton-header"><div class="sk-avatar"></div><div class="sk-line sk-w-50"></div><div class="sk-line sk-w-30"></div></div>`;
-    }
+    if(header) header.innerHTML = `<div class="skeleton-header"><div class="sk-avatar"></div><div class="sk-line sk-w-50"></div><div class="sk-line sk-w-30"></div></div>`;
     
     const grid = document.getElementById('catalog-container');
     if(grid) {
@@ -33,11 +24,11 @@ function showShopSkeleton() {
     }
 }
 
-// 2. CHARGER INFOS BOUTIQUE
+// 2. INFOS BOUTIQUE
 async function loadShopInfo() {
     try {
         const res = await fetch('data/info.json');
-        if(!res.ok) throw new Error("Impossible de lire data/info.json");
+        if(!res.ok) throw new Error("Info introuvable");
         shopData = await res.json();
         
         document.title = shopData.name;
@@ -48,48 +39,49 @@ async function loadShopInfo() {
 
         // SEO
         const ogTitle = document.getElementById('og-title');
-        if(ogTitle) ogTitle.content = shopData.name;
+        const ogDesc = document.getElementById('og-desc');
+        const ogImage = document.getElementById('og-image');
+        const absoluteLogo = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/' + logoSrc;
 
-        header.innerHTML = `
-            <img src="${logoSrc}" class="profile-img" onerror="this.src='https://via.placeholder.com/150'">
-            <h1 class="profile-name">${shopData.name}</h1>
-            <p class="profile-bio">${shopData.bio}</p>
-            <div class="social-bar">
-                ${shopData.socials.facebook ? `<a href="${shopData.socials.facebook}" class="social-btn"><i class="fab fa-facebook-f"></i></a>` : ''}
-                ${shopData.socials.instagram ? `<a href="${shopData.socials.instagram}" class="social-btn"><i class="fab fa-instagram"></i></a>` : ''}
-                ${shopData.socials.tiktok ? `<a href="${shopData.socials.tiktok}" class="social-btn"><i class="fab fa-tiktok"></i></a>` : ''}
-                <a href="https://wa.me/${shopData.whatsapp_number}" class="social-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
-            </div>
-        `;
-    } catch(e) { 
-        console.error(e);
-        document.getElementById('header-container').innerHTML = '<p style="text-align:center; color:red;">Erreur chargement infos boutique.</p>';
-    }
+        if(ogTitle) ogTitle.content = shopData.name;
+        if(ogDesc) ogDesc.content = shopData.bio;
+        if(ogImage) ogImage.content = absoluteLogo;
+
+        if(header) {
+            header.innerHTML = `
+                <img src="${logoSrc}" class="profile-img" onerror="this.src='https://via.placeholder.com/150'">
+                <h1 class="profile-name">${shopData.name}</h1>
+                <p class="profile-bio">${shopData.bio}</p>
+                <div class="social-bar">
+                    ${shopData.socials.facebook ? `<a href="${shopData.socials.facebook}" class="social-btn"><i class="fab fa-facebook-f"></i></a>` : ''}
+                    ${shopData.socials.instagram ? `<a href="${shopData.socials.instagram}" class="social-btn"><i class="fab fa-instagram"></i></a>` : ''}
+                    ${shopData.socials.tiktok ? `<a href="${shopData.socials.tiktok}" class="social-btn"><i class="fab fa-tiktok"></i></a>` : ''}
+                    <a href="https://wa.me/${shopData.whatsapp_number}" class="social-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            `;
+        }
+    } catch(e) { console.error(e); }
 }
 
-// 3. CHARGER PRODUITS
+// 3. PRODUITS
 async function loadProducts() {
     try {
         const res = await fetch('data/produits.json');
-        if(!res.ok) throw new Error("Impossible de lire data/produits.json");
         const data = await res.json();
         products = data.items ? data.items : data;
 
         generateCategoryFilters();
         renderGrid(products);
-    } catch(e) { 
-        console.error(e);
-        document.getElementById('catalog-container').innerHTML = '<p style="text-align:center; color:red;">Erreur chargement produits.</p>';
-    }
+    } catch(e) { console.error(e); }
 }
 
-// Rendu Grille
 function renderGrid(items) {
     const grid = document.getElementById('catalog-container');
+    if(!grid) return;
     grid.innerHTML = '';
 
     if(!items || items.length === 0) {
-        grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit trouvé.</div>';
+        grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit.</div>';
         return;
     }
 
@@ -98,14 +90,12 @@ function renderGrid(items) {
         let imgPath = p.image || 'https://via.placeholder.com/300';
         if(imgPath.startsWith('/')) imgPath = imgPath.substring(1);
 
-        // Badge Promo
         let promoBadge = '';
         if(p.prix_original && p.prix_original > p.prix) {
             const percent = Math.round(((p.prix_original - p.prix) / p.prix_original) * 100);
             promoBadge = `<div class="card-promo-badge">-${percent}%</div>`;
         }
 
-        // Badge Catégorie
         const catBadge = p.category ? `<div class="product-cat">${p.category}</div>` : '';
 
         grid.innerHTML += `
@@ -121,20 +111,14 @@ function renderGrid(items) {
     });
 }
 
-// Filtres
 function generateCategoryFilters() {
     const catContainer = document.getElementById('category-container');
     if(!catContainer) return;
     
     const categories = ['Tout'];
-    products.forEach(p => { 
-        if(p.category && !categories.includes(p.category)) categories.push(p.category); 
-    });
+    products.forEach(p => { if(p.category && !categories.includes(p.category)) categories.push(p.category); });
     
-    if(categories.length <= 1) { // Si pas de catégorie, on cache la barre
-        catContainer.style.display = 'none';
-        return;
-    }
+    if(categories.length <= 1) { catContainer.style.display = 'none'; return; }
 
     catContainer.innerHTML = '';
     categories.forEach(cat => {
@@ -153,7 +137,7 @@ function filterByCategory(cat, btnElement) {
     else renderGrid(products.filter(p => p.category === cat));
 }
 
-// 4. OUVRIR PRODUIT
+// 4. OUVRIR PRODUIT (SÉCURISÉ)
 window.openProduct = function(id) {
     currentProduct = products.find(p => p.id == id);
     if(!currentProduct) return;
@@ -163,62 +147,59 @@ window.openProduct = function(id) {
     if(mainImg.startsWith('/')) mainImg = mainImg.substring(1);
     
     const imgEl = document.getElementById('m-img');
-    imgEl.src = mainImg;
-    imgEl.style.transform = "none"; // Reset zoom loupe
-
-    // B. Variantes / Galerie
-    const variantBox = document.getElementById('m-variants'); // Conteneur dans la modale
-    
-    // On doit s'assurer que ce conteneur existe dans le HTML, sinon on utilise m-gallery
-    const galleryBox = document.getElementById('m-gallery'); 
-    
-    // On vide les deux pour être sûr
-    if(variantBox) variantBox.innerHTML = '';
-    if(galleryBox) galleryBox.innerHTML = '';
-
-    // Logique Variantes (Priorité)
-    let variants = [];
-    if(currentProduct.variants) {
-        currentProduct.variants.forEach(v => {
-            let path = v.img;
-            if(path.startsWith('/')) path = path.substring(1);
-            variants.push({ name: v.name, img: path });
-        });
-    } else if(currentProduct.gallery) {
-        // Fallback Galerie simple
-        currentProduct.gallery.forEach((g, idx) => {
-            let path = g.img;
-            if(path.startsWith('/')) path = path.substring(1);
-            variants.push({ name: `Vue ${idx+1}`, img: path });
-        });
+    if(imgEl) {
+        imgEl.src = mainImg;
+        imgEl.style.transform = "none";
     }
 
-    // Affichage des miniatures (Dans m-gallery par défaut)
-    if(variants.length > 0) {
-        // Ajout principal
-        variants.unshift({ name: "Principal", img: mainImg });
+    // B. Galerie & Variantes (SÉCURISÉ)
+    const galleryBox = document.getElementById('m-gallery');
+    if (galleryBox) {
+        galleryBox.innerHTML = '';
         
-        variants.forEach(v => {
-            galleryBox.innerHTML += `
-                <div class="variant-option" onclick="selectVariant('${v.img}', '${v.name}', this)">
-                    <img src="${v.img}" class="variant-img">
-                    <span class="variant-label" style="display:block; font-size:0.6rem; text-align:center;">${v.name}</span>
-                </div>`;
-        });
+        let variants = [];
+        if(currentProduct.variants) {
+            currentProduct.variants.forEach(v => {
+                let path = v.img;
+                if(path.startsWith('/')) path = path.substring(1);
+                variants.push({ src: path, name: v.name });
+            });
+        } else if(currentProduct.gallery) {
+            currentProduct.gallery.forEach((g, idx) => {
+                let path = g.img;
+                if(path.startsWith('/')) path = path.substring(1);
+                variants.push({ src: path, name: '' });
+            });
+        }
+
+        if(variants.length > 0) {
+            variants.unshift({ src: mainImg, name: 'Principal' });
+            variants.forEach(v => {
+                galleryBox.innerHTML += `
+                    <div style="cursor:pointer; display:flex; flex-direction:column; align-items:center;" onclick="changeMainImage('${v.src}', '${v.name}', this)">
+                        <img src="${v.src}" class="gallery-thumb">
+                        ${v.name && v.name !== 'Principal' ? `<span style="font-size:0.6rem; color:#666;">${v.name}</span>` : ''}
+                    </div>`;
+            });
+        }
     }
 
     // C. Textes
-    document.getElementById('m-title').textContent = currentProduct.nom;
-    document.getElementById('m-desc').textContent = currentProduct.desc || "";
+    const titleEl = document.getElementById('m-title');
+    if(titleEl) titleEl.textContent = currentProduct.nom;
+    
+    const descEl = document.getElementById('m-desc');
+    if(descEl) descEl.textContent = currentProduct.desc || "";
     
     const priceBox = document.getElementById('m-price-box');
-    const price = Number(currentProduct.prix).toLocaleString() + ' F';
-    
-    if(currentProduct.prix_original && currentProduct.prix_original > currentProduct.prix) {
-        const old = Number(currentProduct.prix_original).toLocaleString() + ' F';
-        priceBox.innerHTML = `<span class="old-price">${old}</span> <span class="promo-price-heart">${price}</span>`;
-    } else {
-        priceBox.innerHTML = `<h3 style="color:#FF9F1C; margin:0;">${price}</h3>`;
+    if(priceBox) {
+        const price = Number(currentProduct.prix).toLocaleString() + ' F';
+        if(currentProduct.prix_original && currentProduct.prix_original > currentProduct.prix) {
+            const old = Number(currentProduct.prix_original).toLocaleString() + ' F';
+            priceBox.innerHTML = `<span class="old-price">${old}</span> <span class="promo-price-heart">${price}</span>`;
+        } else {
+            priceBox.innerHTML = `<h3 style="color:#FF9F1C; margin:0;">${price}</h3>`;
+        }
     }
 
     // D. Tailles
@@ -226,24 +207,26 @@ window.openProduct = function(id) {
     const sizeContainer = document.getElementById('m-sizes');
     selectedSize = null;
 
-    if(currentProduct.sizes) {
-        sizeBox.style.display = 'block';
-        sizeContainer.innerHTML = '';
-        const sizes = currentProduct.sizes.split(',').map(s => s.trim());
-        sizes.forEach(s => {
-            const btn = document.createElement('div');
-            btn.className = 'size-btn';
-            btn.textContent = s;
-            btn.onclick = () => {
-                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                selectedSize = s;
-            };
-            sizeContainer.appendChild(btn);
-        });
-    } else {
-        sizeBox.style.display = 'none';
-        selectedSize = "Unique";
+    if(sizeBox && sizeContainer) {
+        if(currentProduct.sizes) {
+            sizeBox.style.display = 'block';
+            sizeContainer.innerHTML = '';
+            const sizes = currentProduct.sizes.split(',').map(s => s.trim());
+            sizes.forEach(s => {
+                const btn = document.createElement('div');
+                btn.className = 'size-btn';
+                btn.textContent = s;
+                btn.onclick = () => {
+                    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    selectedSize = s;
+                };
+                sizeContainer.appendChild(btn);
+            });
+        } else {
+            sizeBox.style.display = 'none';
+            selectedSize = "Unique";
+        }
     }
 
     // E. Reset UI
@@ -253,22 +236,31 @@ window.openProduct = function(id) {
     const arrow = document.querySelector('.scroll-hint-down');
     if(arrow) arrow.style.display = 'block';
 
-    document.getElementById('c-address').style.display = 'none';
-    document.querySelectorAll('input[name="delivery"]')[0].checked = true;
+    const addr = document.getElementById('c-address');
+    if(addr) { addr.style.display = 'none'; addr.value = ''; }
     
-    // OUVRE LA MODALE
+    const radios = document.querySelectorAll('input[name="delivery"]');
+    if(radios.length > 0) radios[0].checked = true;
+    
     const modal = document.getElementById('product-modal');
     if(modal) modal.classList.add('active');
 };
 
-// Sélection Variante
-window.selectVariant = function(src, name, el) {
-    document.getElementById('m-img').src = src;
-    selectedVariant = name;
-    document.querySelectorAll('.variant-option').forEach(v => v.classList.remove('active')); // Retire active partout
-    // Ajoute active sur le parent de l'image cliquée
-    if(el) el.classList.add('active'); 
-    else if(event && event.currentTarget) event.currentTarget.classList.add('active');
+// Changement image variante
+window.changeMainImage = function(src, name, el) {
+    const img = document.getElementById('m-img');
+    if(img) {
+        img.src = src;
+        img.style.transform = "none";
+    }
+    selectedVariant = name !== 'Principal' ? name : null;
+    
+    // Visuel actif
+    document.querySelectorAll('.gallery-thumb').forEach(t => t.style.borderColor = "transparent");
+    if(el) {
+        const thumb = el.querySelector('img');
+        if(thumb) thumb.style.borderColor = "#FF9F1C";
+    }
 };
 
 window.closeModal = function() {
@@ -276,72 +268,66 @@ window.closeModal = function() {
     if (modal) modal.classList.remove('active');
 };
 
-window.changeMainImage = function(src) {
-    document.getElementById('m-img').src = src;
-};
-
-// 5. ZOOM LOUPE (PC ONLY)
+// 5. ZOOM LOUPE (PC)
 function initZoom() {
     const box = document.querySelector('.modal-img-box');
     const img = document.getElementById('m-img');
 
     if(!box || !img) return;
 
-    // Détection tactile
     const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
     if(!isTouch) {
-        // Sur PC : Effet Loupe
         box.addEventListener('mousemove', function(e) {
             const {left, top, width, height} = box.getBoundingClientRect();
             const x = (e.clientX - left) / width * 100;
             const y = (e.clientY - top) / height * 100;
-            
             img.style.transformOrigin = `${x}% ${y}%`;
             img.style.transform = "scale(2)";
         });
-
         box.addEventListener('mouseleave', function() {
             img.style.transform = "scale(1)";
             setTimeout(() => { img.style.transformOrigin = "center center"; }, 300);
         });
     }
-    // Sur Mobile : Le click "openZoom" dans le HTML gère le plein écran
 }
 
-// 6. FORMULAIRE & ACTIONS
+// 6. FORMULAIRE & UTILS
 const btnShow = document.getElementById('btn-show-form');
 if(btnShow) {
     btnShow.addEventListener('click', function() {
         this.style.display = 'none';
-        document.getElementById('order-form-box').style.display = 'block';
+        const form = document.getElementById('order-form-box');
+        if(form) {
+            form.style.display = 'block';
+            form.scrollIntoView({behavior: 'smooth'});
+        }
         const arrow = document.querySelector('.scroll-hint-down');
         if(arrow) arrow.style.display = 'none';
-        document.getElementById('order-form-box').scrollIntoView({behavior: 'smooth'});
     });
 }
 
 window.toggleAddress = function(show) {
     const field = document.getElementById('c-address');
-    if(show) { field.style.display = 'block'; field.required = true; } 
-    else { field.style.display = 'none'; field.required = false; }
-};
-
-// Zoom Plein Écran
-window.openZoom = function(src) {
-    const zoomOverlay = document.getElementById('zoom-view');
-    const zoomImg = document.getElementById('zoom-img-target');
-    if(zoomOverlay && zoomImg) {
-        zoomImg.src = src;
-        zoomOverlay.classList.add('active');
+    if(field) {
+        field.style.display = show ? 'block' : 'none';
+        field.required = show;
     }
 };
-window.closeZoom = function() {
-    const zoomOverlay = document.getElementById('zoom-view');
-    if(zoomOverlay) zoomOverlay.classList.remove('active');
+
+window.openZoom = function(src) {
+    const overlay = document.getElementById('zoom-view');
+    const img = document.getElementById('zoom-img-target');
+    if(overlay && img) {
+        img.src = src;
+        overlay.classList.add('active');
+    }
+};
+window.closeZoom = function() { 
+    const overlay = document.getElementById('zoom-view');
+    if(overlay) overlay.classList.remove('active');
 };
 
-// Partage
 window.openShareModal = function() { 
     const m = document.getElementById('share-modal');
     if(m) m.classList.add('active'); 
@@ -352,27 +338,20 @@ window.closeShareModal = function() {
 }
 window.shareTo = function(platform) {
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`Regarde la boutique ${shopData.name || ''} !`);
+    const text = encodeURIComponent(`Regarde ${shopData.name || 'ça'} !`);
     let link = '';
-
     if (platform === 'whatsapp') link = `https://wa.me/?text=${text}%20${url}`;
     else if (platform === 'facebook') link = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-    else {
-        navigator.clipboard.writeText(window.location.href);
-        alert("Lien copié !");
-        closeShareModal();
-        return;
-    }
-    window.open(link, '_blank');
-    closeShareModal();
+    else { navigator.clipboard.writeText(window.location.href); alert("Copié !"); closeShareModal(); return; }
+    window.open(link, '_blank'); closeShareModal();
 }
 
-// Commande
 window.sendOrder = function() {
     const name = document.getElementById('c-name').value;
     const code = document.getElementById('c-code').value;
     const phone = document.getElementById('c-phone').value;
-    const deliveryMode = document.querySelector('input[name="delivery"]:checked').value;
+    const deliveryInput = document.querySelector('input[name="delivery"]:checked');
+    const deliveryMode = deliveryInput ? deliveryInput.value : 'boutique';
     const address = document.getElementById('c-address').value;
 
     if(!name || !phone) return alert("Nom et Téléphone obligatoires.");
