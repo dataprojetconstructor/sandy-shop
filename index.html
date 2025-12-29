@@ -4,35 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boutique</title>
+    
+    <!-- CSS & FONTS -->
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- META SEO -->
     <meta property="og:title" content="Boutique" id="og-title">
     <meta property="og:description" content="Découvrez nos produits" id="og-desc">
     <meta property="og:image" content="" id="og-image">
 </head>
 <body>
 
+    <!-- NAVIGATION FLOTTANTE -->
     <a href="https://urbain7.github.io/EMAREA/" class="nav-btn-fixed btn-back"><i class="fas fa-arrow-left"></i></a>
     <div onclick="openShareModal()" class="nav-btn-fixed btn-share"><i class="fas fa-share-alt"></i></div>
 
+    <!-- HEADER & FILTRES -->
     <div class="profile-header" id="header-container"></div>
     <div id="category-container" class="category-scroll"></div>
+
+    <!-- CATALOGUE -->
     <div class="catalog-title">Collections</div>
     <div class="catalog-grid" id="catalog-container"></div>
+
+    <!-- FOOTER -->
     <div class="shop-footer">Propulsé par <a href="https://urbain7.github.io/EMAREA/" style="color:#FF9F1C; font-weight:bold;">EM AREA</a></div>
 
+    <!-- ============================== -->
+    <!-- MODALE PRODUIT (IMPORTANT)     -->
+    <!-- ============================== -->
     <div id="product-modal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
         <div class="modal-card">
             <div class="close-btn" onclick="closeModal()">✕</div>
             
-            <div class="modal-img-box" id="zoom-container">
-                <!-- L'image principale (Zoom sur PC, Clic sur Mobile) -->
-                <img id="m-img" class="modal-img" src="">
-                <!-- Conteneur des Variantes (Couleurs) -->
-                <div id="m-variants" class="variants-container"></div>
+            <!-- ZONE IMAGE -->
+            <div class="modal-img-box">
+                <!-- Image Principale -->
+                <img id="m-img" class="modal-img" src="" alt="Produit">
+                
+                <!-- ZONE GALERIE (C'est ce qui manquait) -->
+                <div id="m-gallery" class="gallery-container"></div>
             </div>
 
+            <!-- ZONE INFOS -->
             <div class="modal-details">
                 <h2 id="m-title" style="margin-bottom:5px;">Titre</h2>
                 <div id="m-price-box" class="price-row"></div>
@@ -43,13 +59,16 @@
 
                 <div class="scroll-hint-down" onclick="document.getElementById('btn-show-form').scrollIntoView({behavior: 'smooth'})">↓</div>
 
+                <!-- TAILLES -->
                 <div id="m-sizes-box" style="display:none;">
                     <h4 style="margin:10px 0 5px;">Taille :</h4>
                     <div id="m-sizes" class="size-selector"></div>
                 </div>
 
+                <!-- BOUTON ACTION -->
                 <button id="btn-show-form" class="btn-order btn-pulse">🛒 Commander</button>
 
+                <!-- FORMULAIRE -->
                 <div id="order-form-box" class="order-form">
                     <h4 style="margin:0 0 15px;">📝 Finaliser la commande</h4>
                     <input type="text" id="c-name" class="form-input" placeholder="Votre Nom">
@@ -84,6 +103,7 @@
         </div>
     </div>
 
+    <!-- MODALE PARTAGE -->
     <div id="share-modal" class="modal-overlay" onclick="if(event.target === this) closeShareModal()">
         <div class="modal-card" style="max-height: auto; border-radius: 25px 25px 0 0;">
             <div class="close-btn" onclick="closeShareModal()">✕</div>
@@ -96,6 +116,7 @@
         </div>
     </div>
 
+    <!-- ZOOM -->
     <div id="zoom-view" class="zoom-overlay" onclick="closeZoom()">
         <span class="zoom-close">&times;</span>
         <img id="zoom-img-target" class="zoom-img" src="">
