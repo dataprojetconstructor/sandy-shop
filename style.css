@@ -1,6 +1,6 @@
 :root {
-    --primary: #FF9F1C;
-    --secondary: #2EC4B6;
+    --primary: #FF9F1C;   /* Orange EM AREA */
+    --secondary: #2EC4B6; /* Turquoise */
     --dark: #011627;
     --light: #F8F9FA;
     --white: #FFFFFF;
@@ -9,149 +9,215 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Poppins', sans-serif; background: var(--light); color: var(--dark); margin: 0; }
+
+body { 
+    font-family: 'Poppins', sans-serif; 
+    background: var(--light); 
+    color: var(--dark); 
+    margin: 0; 
+}
+
 a { text-decoration: none; color: inherit; transition: 0.2s; }
 img { max-width: 100%; display: block; }
 
-/* NAVIGATION & HEADER */
-.nav-btn-fixed { position: fixed; top: 15px; z-index: 900; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; color: var(--dark); font-size: 1.1rem; border: 1px solid #eee; cursor: pointer; transition: transform 0.2s; }
+/* --- 1. NAVIGATION FIXE --- */
+.nav-btn-fixed {
+    position: fixed; top: 15px; z-index: 900;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--dark); font-size: 1.1rem; border: 1px solid #eee;
+    cursor: pointer; transition: transform 0.2s;
+}
 .nav-btn-fixed:active { transform: scale(0.9); }
 .btn-back { left: 15px; color: var(--primary); }
 .btn-share { right: 15px; color: var(--dark); }
 
-.profile-header { background: var(--white); padding: 60px 20px 30px; text-align: center; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; box-shadow: var(--shadow); margin-bottom: 20px; position: relative; }
-.profile-header::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, var(--primary), #ff6b6b); }
-.profile-img { width: 110px; height: 110px; object-fit: cover; border-radius: 35%; border: 4px solid var(--white); box-shadow: 0 5px 15px rgba(255, 159, 28, 0.3); margin: 0 auto 15px; background: #eee; }
+/* --- 2. HEADER PROFIL --- */
+.profile-header {
+    background: var(--white); padding: 60px 20px 30px; text-align: center;
+    border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;
+    box-shadow: var(--shadow); margin-bottom: 20px; position: relative;
+}
+.profile-header::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+    background: linear-gradient(90deg, var(--primary), #ff6b6b);
+}
+.profile-img {
+    width: 110px; height: 110px; object-fit: cover;
+    border-radius: 35%; border: 4px solid var(--white);
+    box-shadow: 0 5px 15px rgba(255, 159, 28, 0.3);
+    margin: 0 auto 15px; background: #eee;
+}
 .profile-name { font-size: 1.5rem; font-weight: 800; margin: 0; }
 .profile-bio { font-size: 0.9rem; color: #666; max-width: 500px; margin: 10px auto; }
+
 .social-bar { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-.social-btn { width: 45px; height: 45px; border-radius: 12px; background: #f4f6f8; color: #555; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+.social-btn {
+    width: 45px; height: 45px; border-radius: 12px; background: #f4f6f8; color: #555;
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+}
 .social-btn.whatsapp { background: #E8F5E9; color: #25D366; }
 
-/* FILTRES */
-.category-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 0 15px 15px; margin-bottom: 10px; scrollbar-width: none; justify-content: center; }
-.category-btn { padding: 8px 16px; border-radius: 50px; background: white; border: 1px solid #eee; color: #666; font-size: 0.85rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.2s; }
-.category-btn.active { background: var(--dark); color: white; border-color: var(--dark); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+/* --- 3. FILTRES CATÉGORIES --- */
+.category-scroll {
+    display: flex; gap: 10px; overflow-x: auto;
+    padding: 0 15px 15px; margin-bottom: 10px;
+    scrollbar-width: none; justify-content: center;
+}
+.category-btn {
+    padding: 8px 16px; border-radius: 50px;
+    background: white; border: 1px solid #eee;
+    color: #666; font-size: 0.85rem; font-weight: 600;
+    white-space: nowrap; cursor: pointer; transition: 0.2s;
+}
+.category-btn.active {
+    background: var(--dark); color: white; border-color: var(--dark);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
 
-/* GRILLE PRODUITS */
+/* --- 4. GRILLE PRODUITS (RESPONSIVE) --- */
 .catalog-title { text-align: center; font-weight: 800; font-size: 1.2rem; margin-bottom: 15px; text-transform: uppercase; opacity: 0.8; }
-.catalog-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 0 15px; max-width: 1000px; margin: 0 auto; }
+
+.catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Mobile: 2 colonnes */
+    gap: 15px; padding: 0 15px;
+    max-width: 1200px; margin: 0 auto;
+}
+/* Tablette */
 @media (min-width: 600px) { .catalog-grid { grid-template-columns: repeat(3, 1fr); } }
+/* PC */
 @media (min-width: 1024px) { .catalog-grid { grid-template-columns: repeat(4, 1fr); } }
 
-.product-card { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; cursor: pointer; position: relative; }
+.product-card {
+    background: var(--white); border-radius: var(--radius); overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #f0f0f0;
+    cursor: pointer; position: relative;
+}
 .product-img { width: 100%; height: 180px; object-fit: cover; background: #eee; }
 .product-info { padding: 12px; }
-
-/* NOUVEAU : Catégorie sur la carte */
 .product-cat { font-size: 0.65rem; text-transform: uppercase; color: #999; font-weight: 700; margin-bottom: 3px; letter-spacing: 0.5px; }
-
 .product-title { font-size: 0.9rem; font-weight: 600; margin: 0 0 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .product-price { color: var(--primary); font-weight: 800; font-size: 1rem; }
-.card-promo-badge { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white; font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 4px; box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3); z-index: 2; animation: heartBeat 2s infinite; }
 
-/* MODALE PRODUIT */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: none; justify-content: center; align-items: flex-end; }
+.card-promo-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: #e74c3c; color: white;
+    font-size: 0.65rem; font-weight: 800;
+    padding: 4px 8px; border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);
+    z-index: 2; animation: heartBeat 2s infinite;
+}
+
+/* --- 5. MODALE PRODUIT (STRUCTURE CORRIGÉE) --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); z-index: 2000;
+    display: none; justify-content: center; align-items: flex-end;
+}
+/* Sur PC, on centre la modale */
 @media (min-width: 768px) { .modal-overlay { align-items: center; } }
+
 .modal-overlay.active { display: flex; animation: fadeIn 0.3s; }
-.modal-card { background: var(--white); width: 100%; max-width: 500px; border-top-left-radius: 25px; border-top-right-radius: 25px; padding: 20px; position: relative; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease-out; }
-@media (min-width: 768px) { .modal-card { border-radius: 20px; } }
-.close-btn { position: sticky; top: 0; left: 95%; margin-bottom: -35px; background: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 100; }
 
-/* ZONE IMAGE & ZOOM */
-/* --- CORRECTION STRUCTURE MODALE --- */
-
-/* La colonne de gauche (contient Image + Galerie) */
-.modal-left-col {
-    flex: 1; /* Prend 50% de la largeur sur PC */
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    background: #fff;
-    border-radius: 12px;
+.modal-card {
+    background: var(--white); width: 100%; max-width: 800px; /* Plus large pour PC */
+    border-top-left-radius: 25px; border-top-right-radius: 25px;
+    padding: 20px; position: relative; max-height: 90vh; overflow-y: auto;
+    animation: slideUp 0.3s ease-out;
+    display: flex; flex-direction: column;
+}
+/* Sur PC, modale en ligne (Image à gauche, Texte à droite) */
+@media (min-width: 768px) { 
+    .modal-card { flex-direction: row; border-radius: 20px; padding: 30px; gap: 30px; }
 }
 
-/* La zone de l'image principale (Le zoom ne s'applique qu'ici) */
+/* Croix Sticky */
+.close-btn {
+    position: absolute; top: 15px; right: 15px;
+    background: white; width: 35px; height: 35px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 100; border: 1px solid #eee;
+}
+
+/* COLONNE GAUCHE (Image + Galerie) */
+.modal-left-col { flex: 1; display: flex; flex-direction: column; width: 100%; }
+
+/* Zone Image (Zoom) */
 .modal-img-box { 
-    background: #f8f9fa; 
-    padding: 10px; 
-    border-radius: 12px; 
-    margin-bottom: 10px; 
-    position: relative; 
-    overflow: hidden; /* Important pour que le zoom ne dépasse pas */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 300px; /* Hauteur fixe pour éviter que ça saute */
+    background: #f8f9fa; padding: 10px; border-radius: 12px; margin-bottom: 10px; 
+    position: relative; overflow: hidden; /* Empêche l'image de sortir au zoom */
+    height: 300px; display: flex; align-items: center; justify-content: center;
 }
-
-/* L'image elle-même */
 .modal-img { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: contain; 
-    cursor: crosshair; /* Curseur loupe */
-    transition: transform 0.1s ease-out; /* Fluidité du zoom */
+    width: 100%; height: 100%; object-fit: contain; 
+    cursor: crosshair; transition: transform 0.1s ease-out; 
 }
 
-/* La galerie (reste en dessous) */
+/* Galerie (En dessous) */
 .gallery-container { 
-    display: flex; 
-    gap: 10px; 
-    overflow-x: auto; 
-    padding: 5px;
-    justify-content: center;
+    display: flex; gap: 10px; overflow-x: auto; 
+    padding: 5px; justify-content: flex-start;
 }
+.gallery-item { cursor: pointer; display: flex; flex-direction: column; align-items: center; transition: 0.2s; }
+.gallery-thumb { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 2px solid transparent; background: white; }
+.gallery-item.active .gallery-thumb { border-color: var(--primary); transform: translateY(-2px); }
+.gallery-label { font-size: 0.6rem; color: #888; margin-top: 2px; }
 
+/* COLONNE DROITE (Infos) */
+.modal-details { flex: 1; width: 100%; }
 
-/* VARIANTES (COULEURS) */
-.variants-container { display: flex; gap: 10px; overflow-x: auto; margin-top: 10px; padding-bottom: 5px; }
-.variant-option { display: flex; flex-direction: column; align-items: center; cursor: pointer; min-width: 50px; }
-.variant-img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; border: 2px solid transparent; transition: 0.2s; }
-.variant-label { font-size: 0.7rem; color: #666; margin-top: 4px; }
-.variant-option.active .variant-img { border-color: var(--primary); transform: scale(1.1); }
-
+/* Prix & Infos */
 .price-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
 .old-price { text-decoration: line-through; color: #999; font-size: 0.9rem; }
 .promo-price-heart { color: #e74c3c; font-weight: 800; font-size: 1.2rem; animation: heartBeat 1.5s infinite; }
 
-/* FORM & BUTTONS */
+/* Formulaire */
 .order-form { margin-top: 20px; padding-top: 20px; border-top: 1px dashed #eee; display: none; }
 .form-input { width: 100%; padding: 12px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 10px; margin-bottom: 10px; font-family: inherit; }
 .phone-group { display: flex; gap: 10px; margin-bottom: 10px; }
 .country-select { flex: 0 0 110px; padding: 12px; border: 1px solid #ddd; border-radius: 10px; background: #fff; cursor: pointer; }
+
 .delivery-options { display: flex; gap: 10px; margin-bottom: 15px; }
 .radio-label { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; background: #f9f9f9; padding: 10px; border-radius: 8px; width: 100%; border: 1px solid #eee; cursor: pointer; }
-.btn-order { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+
+/* Boutons */
+.btn-order { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 15px; }
 .btn-pulse { animation: pulseOrder 1.5s infinite; background: linear-gradient(45deg, #FF9F1C, #ffbe5b); }
 .btn-whatsapp { width: 100%; padding: 15px; background: #25D366; color: white; border: none; border-radius: 50px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); }
 
-/* TAILLES */
+/* Tailles */
 .size-selector { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
 .size-btn { padding: 8px 15px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; background: white; }
-.size-btn.selected { background: var(--dark); color: white; }
+.size-btn.selected { background: var(--dark); color: white; border-color: var(--dark); }
 
+/* Footer */
 .shop-footer { text-align: center; padding: 40px 20px 80px; font-size: 0.8rem; color: #ccc; border-top: 1px dashed #eee; margin-top: 40px; }
 
-/* MODALE PARTAGE & SKELETON & ANIMATIONS */
-/* ... (Garder les mêmes animations que précédemment) ... */
+/* Modale Partage */
+.share-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 10px 0; }
+.share-item { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
+.share-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
+.bg-wa { background: #25D366; } .bg-fb { background: #1877F2; } .bg-insta { background: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d); } .bg-copy { background: #555; }
+
+/* Zoom Overlay */
+.zoom-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: none; justify-content: center; align-items: center; }
+.zoom-overlay.active { display: flex; }
+.zoom-img { max-width: 95%; max-height: 95%; object-fit: contain; }
+.zoom-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 2rem; cursor: pointer; }
+
+/* Animations */
 @keyframes heartBeat { 0% { transform: scale(1); } 15% { transform: scale(1.1); } 30% { transform: scale(1); } 45% { transform: scale(1.1); } 100% { transform: scale(1); } }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes pulseOrder { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 159, 28, 0.7); } 70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(255, 159, 28, 0); } 100% { transform: scale(1); } }
 @keyframes bounceDown { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } }
 .scroll-hint-down { text-align: center; color: var(--primary); font-size: 1.5rem; margin-top: 10px; animation: bounceDown 2s infinite; cursor: pointer; }
 
-/* ZOOM OVERLAY (MOBILE ONLY) */
-.zoom-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: none; justify-content: center; align-items: center; }
-.zoom-overlay.active { display: flex; }
-.zoom-img { max-width: 95%; max-height: 95%; object-fit: contain; }
-.zoom-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 2rem; cursor: pointer; }
-
-.share-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 10px 0; }
-.share-item { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
-.share-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
-.bg-wa { background: #25D366; } .bg-fb { background: #1877F2; } .bg-insta { background: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d); } .bg-copy { background: #555; }
-
+/* Skeleton */
 .skeleton-header { padding: 40px; text-align: center; background: white; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .sk-avatar { width: 110px; height: 110px; border-radius: 35%; background: #eee; }
 .sk-line { height: 15px; background: #eee; border-radius: 4px; }
@@ -169,41 +235,5 @@ body.dark-mode .category-btn.active { background: var(--primary); color: white; 
 body.dark-mode .shop-footer { border-color: #333; color: #555; }
 body.dark-mode .nav-btn-fixed { background: rgba(30, 30, 30, 0.9); color: white; border-color: #444; }
 body.dark-mode .btn-share { color: white; }
-
-/* --- CORRECTION GALERIE (Alignement Horizontal) --- */
-
-
-/* Le conteneur d'une miniature (Image + Texte) */
-.gallery-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.gallery-item:active { transform: scale(0.95); }
-
-/* L'image miniature elle-même */
-.gallery-thumb {
-    width: 60px; 
-    height: 60px; 
-    border-radius: 10px; 
-    object-fit: cover; 
-    border: 2px solid transparent; 
-    background: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* Effet quand sélectionné */
-.gallery-item.active .gallery-thumb {
-    border-color: var(--primary);
-    transform: translateY(-2px);
-}
-
-.gallery-label {
-    font-size: 0.65rem;
-    color: #888;
-    margin-top: 4px;
-    font-weight: 600;
-}
+body.dark-mode .gallery-thumb { background: #333; border-color: #444; }
+body.dark-mode .gallery-item.active .gallery-thumb { border-color: var(--primary); }
