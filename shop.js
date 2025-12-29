@@ -6,21 +6,39 @@ let selectedVariant = null;
 
 // 1. DÉMARRAGE
 document.addEventListener('DOMContentLoaded', async () => {
+    checkDarkMode(); // Vérifie si le mode sombre doit être activé
     showShopSkeleton(); 
-    await loadShopInfo();
-    await loadProducts();
-    initZoom();
+    
+    try {
+        await loadShopInfo();
+        await loadProducts();
+        initZoom(); // Active la loupe pour PC
+    } catch (e) {
+        console.error("Erreur chargement :", e);
+    }
 });
 
-// SKELETON
+// --- GESTION MODE SOMBRE ---
+function checkDarkMode() {
+    // Vérifie si l'utilisateur a activé le mode sombre sur le site principal
+    if(localStorage.getItem('em_theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+}
+
+// --- SKELETON LOADER ---
 function showShopSkeleton() {
     const header = document.getElementById('header-container');
-    if(header) header.innerHTML = `<div class="skeleton-header"><div class="sk-avatar"></div><div class="sk-line sk-w-50"></div><div class="sk-line sk-w-30"></div></div>`;
+    if(header) {
+        header.innerHTML = `<div class="skeleton-header"><div class="sk-avatar"></div><div class="sk-line sk-w-50"></div><div class="sk-line sk-w-30"></div></div>`;
+    }
     
     const grid = document.getElementById('catalog-container');
     if(grid) {
         grid.innerHTML = '';
-        for(let i=0; i<4; i++) grid.innerHTML += `<div class="product-card" style="height:250px; pointer-events:none;"><div class="product-img skeleton" style="height:180px;"></div><div class="product-info"><div class="sk-line sk-w-50" style="margin-bottom:5px;"></div><div class="sk-line sk-w-30"></div></div></div>`;
+        for(let i=0; i<4; i++) {
+            grid.innerHTML += `<div class="product-card" style="height:250px; pointer-events:none;"><div class="product-img skeleton" style="height:180px;"></div><div class="product-info"><div class="sk-line sk-w-50" style="margin-bottom:5px;"></div><div class="sk-line sk-w-30"></div></div></div>`;
+        }
     }
 }
 
@@ -37,7 +55,7 @@ async function loadShopInfo() {
         let logoSrc = shopData.logo || 'https://via.placeholder.com/150';
         if(logoSrc.startsWith('/')) logoSrc = logoSrc.substring(1);
 
-        // SEO
+        // SEO Dynamique
         const ogTitle = document.getElementById('og-title');
         const ogDesc = document.getElementById('og-desc');
         const ogImage = document.getElementById('og-image');
@@ -47,19 +65,17 @@ async function loadShopInfo() {
         if(ogDesc) ogDesc.content = shopData.bio;
         if(ogImage) ogImage.content = absoluteLogo;
 
-        if(header) {
-            header.innerHTML = `
-                <img src="${logoSrc}" class="profile-img" onerror="this.src='https://via.placeholder.com/150'">
-                <h1 class="profile-name">${shopData.name}</h1>
-                <p class="profile-bio">${shopData.bio}</p>
-                <div class="social-bar">
-                    ${shopData.socials.facebook ? `<a href="${shopData.socials.facebook}" class="social-btn"><i class="fab fa-facebook-f"></i></a>` : ''}
-                    ${shopData.socials.instagram ? `<a href="${shopData.socials.instagram}" class="social-btn"><i class="fab fa-instagram"></i></a>` : ''}
-                    ${shopData.socials.tiktok ? `<a href="${shopData.socials.tiktok}" class="social-btn"><i class="fab fa-tiktok"></i></a>` : ''}
-                    <a href="https://wa.me/${shopData.whatsapp_number}" class="social-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
-                </div>
-            `;
-        }
+        header.innerHTML = `
+            <img src="${logoSrc}" class="profile-img" onerror="this.src='https://via.placeholder.com/150'">
+            <h1 class="profile-name">${shopData.name}</h1>
+            <p class="profile-bio">${shopData.bio}</p>
+            <div class="social-bar">
+                ${shopData.socials.facebook ? `<a href="${shopData.socials.facebook}" class="social-btn"><i class="fab fa-facebook-f"></i></a>` : ''}
+                ${shopData.socials.instagram ? `<a href="${shopData.socials.instagram}" class="social-btn"><i class="fab fa-instagram"></i></a>` : ''}
+                ${shopData.socials.tiktok ? `<a href="${shopData.socials.tiktok}" class="social-btn"><i class="fab fa-tiktok"></i></a>` : ''}
+                <a href="https://wa.me/${shopData.whatsapp_number}" class="social-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        `;
     } catch(e) { console.error(e); }
 }
 
@@ -67,6 +83,7 @@ async function loadShopInfo() {
 async function loadProducts() {
     try {
         const res = await fetch('data/produits.json');
+        if(!res.ok) throw new Error("Produits introuvables");
         const data = await res.json();
         products = data.items ? data.items : data;
 
@@ -81,7 +98,7 @@ function renderGrid(items) {
     grid.innerHTML = '';
 
     if(!items || items.length === 0) {
-        grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit.</div>';
+        grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit trouvé.</div>';
         return;
     }
 
@@ -111,6 +128,7 @@ function renderGrid(items) {
     });
 }
 
+// FILTRES
 function generateCategoryFilters() {
     const catContainer = document.getElementById('category-container');
     if(!catContainer) return;
@@ -137,7 +155,7 @@ function filterByCategory(cat, btnElement) {
     else renderGrid(products.filter(p => p.category === cat));
 }
 
-// 4. OUVRIR PRODUIT (SÉCURISÉ)
+// 4. OUVRIR PRODUIT (Modale)
 window.openProduct = function(id) {
     currentProduct = products.find(p => p.id == id);
     if(!currentProduct) return;
@@ -152,7 +170,7 @@ window.openProduct = function(id) {
         imgEl.style.transform = "none";
     }
 
-    // B. Galerie & Variantes (SÉCURISÉ)
+    // B. Galerie & Variantes (CORRIGÉ HORIZONTAL)
     const galleryBox = document.getElementById('m-gallery');
     if (galleryBox) {
         galleryBox.innerHTML = '';
@@ -168,28 +186,30 @@ window.openProduct = function(id) {
             currentProduct.gallery.forEach((g, idx) => {
                 let path = g.img;
                 if(path.startsWith('/')) path = path.substring(1);
-                variants.push({ src: path, name: '' });
+                variants.push({ src: path, name: `Vue ${idx+1}` });
             });
         }
 
         if(variants.length > 0) {
+            // Ajoute l'image principale au début
             variants.unshift({ src: mainImg, name: 'Principal' });
-            variants.forEach(v => {
+            
+            variants.forEach((v, index) => {
+                // Le premier est actif par défaut
+                const activeClass = index === 0 ? 'active' : '';
+                
                 galleryBox.innerHTML += `
-                    <div style="cursor:pointer; display:flex; flex-direction:column; align-items:center;" onclick="changeMainImage('${v.src}', '${v.name}', this)">
+                    <div class="gallery-item ${activeClass}" onclick="selectVariant('${v.src}', '${v.name}', this)">
                         <img src="${v.src}" class="gallery-thumb">
-                        ${v.name && v.name !== 'Principal' ? `<span style="font-size:0.6rem; color:#666;">${v.name}</span>` : ''}
+                        <span class="gallery-label" style="font-size:0.6rem; color:#888; font-weight:600; margin-top:3px;">${v.name}</span>
                     </div>`;
             });
         }
     }
 
-    // C. Textes
-    const titleEl = document.getElementById('m-title');
-    if(titleEl) titleEl.textContent = currentProduct.nom;
-    
-    const descEl = document.getElementById('m-desc');
-    if(descEl) descEl.textContent = currentProduct.desc || "";
+    // C. Textes & Prix
+    document.getElementById('m-title').textContent = currentProduct.nom;
+    document.getElementById('m-desc').textContent = currentProduct.desc || "";
     
     const priceBox = document.getElementById('m-price-box');
     if(priceBox) {
@@ -246,21 +266,20 @@ window.openProduct = function(id) {
     if(modal) modal.classList.add('active');
 };
 
-// Changement image variante
-window.changeMainImage = function(src, name, el) {
-    const img = document.getElementById('m-img');
-    if(img) {
-        img.src = src;
-        img.style.transform = "none";
+// SÉLECTION VARIANTE (Changement Image + Style)
+window.selectVariant = function(src, name, el) {
+    const imgEl = document.getElementById('m-img');
+    if(imgEl) {
+        imgEl.src = src;
+        imgEl.style.transform = "none";
     }
+    
+    // Si ce n'est pas l'image principale, on stocke le nom pour la commande
     selectedVariant = name !== 'Principal' ? name : null;
     
-    // Visuel actif
-    document.querySelectorAll('.gallery-thumb').forEach(t => t.style.borderColor = "transparent");
-    if(el) {
-        const thumb = el.querySelector('img');
-        if(thumb) thumb.style.borderColor = "#FF9F1C";
-    }
+    // Mise à jour visuelle (Bordure)
+    document.querySelectorAll('.gallery-item').forEach(item => item.classList.remove('active'));
+    if(el) el.classList.add('active');
 };
 
 window.closeModal = function() {
@@ -292,7 +311,7 @@ function initZoom() {
     }
 }
 
-// 6. FORMULAIRE & UTILS
+// 6. INTERACTION FORMULAIRE
 const btnShow = document.getElementById('btn-show-form');
 if(btnShow) {
     btnShow.addEventListener('click', function() {
@@ -315,6 +334,7 @@ window.toggleAddress = function(show) {
     }
 };
 
+// ZOOM PLEIN ÉCRAN
 window.openZoom = function(src) {
     const overlay = document.getElementById('zoom-view');
     const img = document.getElementById('zoom-img-target');
@@ -328,6 +348,7 @@ window.closeZoom = function() {
     if(overlay) overlay.classList.remove('active');
 };
 
+// PARTAGE
 window.openShareModal = function() { 
     const m = document.getElementById('share-modal');
     if(m) m.classList.add('active'); 
@@ -338,7 +359,7 @@ window.closeShareModal = function() {
 }
 window.shareTo = function(platform) {
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`Regarde ${shopData.name || 'ça'} !`);
+    const text = encodeURIComponent(`Regarde ${shopData.name || ''} !`);
     let link = '';
     if (platform === 'whatsapp') link = `https://wa.me/?text=${text}%20${url}`;
     else if (platform === 'facebook') link = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
@@ -346,6 +367,7 @@ window.shareTo = function(platform) {
     window.open(link, '_blank'); closeShareModal();
 }
 
+// COMMANDE
 window.sendOrder = function() {
     const name = document.getElementById('c-name').value;
     const code = document.getElementById('c-code').value;
