@@ -31,7 +31,7 @@ function showToast(message, type = 'success') {
         iconEl.textContent = '⚠️';
         toast.style.backgroundColor = "rgba(220, 53, 69, 0.95)"; // Rouge pour erreur
     } else {
-        iconEl.textContent = '✅';
+        iconEl.textContent = ' ';
         toast.style.backgroundColor = "rgba(30, 30, 30, 0.95)"; // Noir pour succès
     }
     
