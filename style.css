@@ -89,7 +89,7 @@ img { max-width: 100%; display: block; }
 }
 /* Tablette */
 @media (min-width: 600px) { .catalog-grid { grid-template-columns: repeat(3, 1fr); } }
-/* PC */
+/* PC (4 colonnes) */
 @media (min-width: 1024px) { .catalog-grid { grid-template-columns: repeat(4, 1fr); } }
 
 .product-card {
@@ -112,7 +112,7 @@ img { max-width: 100%; display: block; }
     z-index: 2; animation: heartBeat 2s infinite;
 }
 
-/* --- 5. MODALE PRODUIT (STRUCTURE CORRIGÉE) --- */
+/* --- 5. MODALE PRODUIT (CORRIGÉE) --- */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.85); z-index: 2000;
@@ -124,15 +124,15 @@ img { max-width: 100%; display: block; }
 .modal-overlay.active { display: flex; animation: fadeIn 0.3s; }
 
 .modal-card {
-    background: var(--white); width: 100%; max-width: 800px; /* Plus large pour PC */
+    background: var(--white); width: 100%; max-width: 900px;
     border-top-left-radius: 25px; border-top-right-radius: 25px;
     padding: 20px; position: relative; max-height: 90vh; overflow-y: auto;
     animation: slideUp 0.3s ease-out;
     display: flex; flex-direction: column;
 }
-/* Sur PC, modale en ligne (Image à gauche, Texte à droite) */
+/* Sur PC, modale en ligne (2 colonnes) */
 @media (min-width: 768px) { 
-    .modal-card { flex-direction: row; border-radius: 20px; padding: 30px; gap: 30px; }
+    .modal-card { flex-direction: row; border-radius: 20px; padding: 30px; gap: 30px; overflow: hidden; }
 }
 
 /* Croix Sticky */
@@ -144,44 +144,49 @@ img { max-width: 100%; display: block; }
     z-index: 100; border: 1px solid #eee;
 }
 
-/* --- CORRECTION VISUELLE GALERIE --- */
-
+/* --- COLONNE GAUCHE (Image + Galerie) --- */
 .modal-left-col {
     flex: 1;
-    display: flex;
-    flex-direction: column; /* Empile l'image et la galerie verticalement */
-    gap: 10px; /* Espace entre la grande image et les petites */
-}
-
-/* La galerie en ligne horizontale */
-.gallery-container {
-    display: flex;
-    flex-direction: row; /* Force l'horizontale */
-    justify-content: center; /* Centre les petites images */
-    gap: 10px;
+    display: flex; flex-direction: column;
+    gap: 15px; /* Espace entre grande image et galerie */
     width: 100%;
-    padding: 5px 0;
 }
 
-.modal-img-box {
-    /* Le reste ne change pas */
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: 12px;
-    height: 350px; /* On augmente un peu la hauteur pour la grande image */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Zone Image Principale */
+.modal-img-box { 
+    background: #f8f9fa; padding: 10px; border-radius: 12px;
+    position: relative; overflow: hidden;
+    height: 350px; /* Hauteur fixe pour stabilité */
+    display: flex; align-items: center; justify-content: center;
 }
-.gallery-item { cursor: pointer; display: flex; flex-direction: column; align-items: center; transition: 0.2s; }
-.gallery-thumb { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 2px solid transparent; background: white; }
-.gallery-item.active .gallery-thumb { border-color: var(--primary); transform: translateY(-2px); }
-.gallery-label { font-size: 0.6rem; color: #888; margin-top: 2px; }
+.modal-img { 
+    width: 100%; height: 100%; object-fit: contain; 
+    cursor: crosshair; transition: transform 0.1s ease-out; 
+}
 
-/* COLONNE DROITE (Infos) */
-.modal-details { flex: 1; width: 100%; }
+/* Galerie Horizontale (En dessous) */
+.gallery-container { 
+    display: flex; flex-direction: row;
+    gap: 10px; overflow-x: auto; 
+    padding: 5px; justify-content: center;
+}
+.gallery-item { 
+    cursor: pointer; display: flex; flex-direction: column; align-items: center; 
+    transition: 0.2s; flex-shrink: 0;
+}
+.gallery-thumb { 
+    width: 60px; height: 60px; border-radius: 8px; 
+    object-fit: cover; border: 2px solid transparent; background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.gallery-item.active .gallery-thumb { 
+    border-color: var(--primary); transform: translateY(-3px); 
+}
+.gallery-label { font-size: 0.6rem; color: #888; margin-top: 3px; font-weight: 600; }
 
-/* Prix & Infos */
+/* --- COLONNE DROITE (Infos) --- */
+.modal-details { flex: 1; width: 100%; overflow-y: auto; }
+
 .price-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
 .old-price { text-decoration: line-through; color: #999; font-size: 0.9rem; }
 .promo-price-heart { color: #e74c3c; font-weight: 800; font-size: 1.2rem; animation: heartBeat 1.5s infinite; }
