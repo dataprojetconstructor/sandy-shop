@@ -1,61 +1,27 @@
-// --- 1. CONFIGURATION FIREBASE (STATISTIQUES) ---
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCy6ZjGdS-BzFB7WJHGaVmvBeYI6eER_2I",
-  authDomain: "em-area-stats.firebaseapp.com",
-  projectId: "em-area-stats",
-  storageBucket: "em-area-stats.firebasestorage.app",
-  messagingSenderId: "758176416136",
-  appId: "1:758176416136:web:8cb798eecb6d78e1953a3d"
-};
-
-// Initialisation
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// IDENTIFIANT UNIQUE DE LA BOUTIQUE (Change ça pour chaque nouvelle boutique !)
-const SHOP_ID = "sandy_shop"; 
-
-// --- COMPTEUR DE VUES (Automatique) ---
-function trackVisit() {
-    const visitRef = ref(db, 'shops/' + SHOP_ID + '/views');
-    runTransaction(visitRef, (currentViews) => {
-        return (currentViews || 0) + 1;
-    }).then(() => console.log("Vue +1")).catch(console.error);
-}
-// On lance le compteur dès le chargement
-trackVisit();
-
-
-// --- 2. CODE DE LA BOUTIQUE (EXISTANT) ---
-
 let shopData = {};
 let products = [];
 let currentProduct = null;
 let selectedSize = null;
 let selectedVariant = null;
 
-// DÉMARRAGE
-// Note: DOMContentLoaded n'est pas nécessaire avec type="module" car il est différé par défaut,
-// mais on le garde pour la structure.
+// 1. DÉMARRAGE
 document.addEventListener('DOMContentLoaded', async () => {
     showShopSkeleton(); 
+    
     try {
         await loadShopInfo();
         await loadProducts();
-        initZoom();
+        initZoom(); // Active la loupe pour PC
     } catch (e) {
         console.error("Erreur chargement :", e);
     }
 });
 
-// GESTION NOTIFICATIONS (TOAST)
-window.showToast = function(message, type = 'success') {
+// --- GESTION NOTIFICATIONS (TOAST) ---
+function showToast(message, type = 'success') {
     let toast = document.getElementById("toast-notification");
     
-    // Création dynamique du toast si absent (sécurité)
+    // Création dynamique si absent
     if (!toast) {
         const tDiv = document.createElement('div');
         tDiv.id = 'toast-notification';
@@ -79,28 +45,34 @@ window.showToast = function(message, type = 'success') {
     }
     
     toast.className = "toast show";
-    setTimeout(() => { 
+    
+    setTimeout(function(){ 
         toast.className = toast.className.replace("show", ""); 
+        setTimeout(() => toast.style.backgroundColor = "", 300);
     }, 3000);
 }
 
-// SKELETON LOADER
+// --- SKELETON LOADER ---
 function showShopSkeleton() {
     const header = document.getElementById('header-container');
     if(header) {
         header.innerHTML = `<div class="skeleton-header"><div class="sk-avatar"></div><div class="sk-line sk-w-50"></div><div class="sk-line sk-w-30"></div></div>`;
     }
+    
     const grid = document.getElementById('catalog-container');
     if(grid) {
         grid.innerHTML = '';
-        for(let i=0; i<4; i++) grid.innerHTML += `<div class="product-card" style="height:250px; pointer-events:none;"><div class="product-img skeleton" style="height:180px;"></div><div class="product-info"><div class="sk-line sk-w-50" style="margin-bottom:5px;"></div><div class="sk-line sk-w-30"></div></div></div>`;
+        for(let i=0; i<4; i++) {
+            grid.innerHTML += `<div class="product-card" style="height:250px; pointer-events:none;"><div class="product-img skeleton" style="height:180px;"></div><div class="product-info"><div class="sk-line sk-w-50" style="margin-bottom:5px;"></div><div class="sk-line sk-w-30"></div></div></div>`;
+        }
     }
 }
 
-// CHARGER INFOS
+// 2. INFOS BOUTIQUE
 async function loadShopInfo() {
     try {
         const res = await fetch('data/info.json');
+        if(!res.ok) throw new Error("Info introuvable");
         shopData = await res.json();
         
         document.title = shopData.name;
@@ -109,9 +81,15 @@ async function loadShopInfo() {
         let logoSrc = shopData.logo || 'https://via.placeholder.com/150';
         if(logoSrc.startsWith('/')) logoSrc = logoSrc.substring(1);
 
-        // SEO
+        // SEO Dynamique
         const ogTitle = document.getElementById('og-title');
+        const ogDesc = document.getElementById('og-desc');
+        const ogImage = document.getElementById('og-image');
+        const absoluteLogo = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/' + logoSrc;
+
         if(ogTitle) ogTitle.content = shopData.name;
+        if(ogDesc) ogDesc.content = shopData.bio;
+        if(ogImage) ogImage.content = absoluteLogo;
 
         header.innerHTML = `
             <img src="${logoSrc}" class="profile-img" onerror="this.src='https://via.placeholder.com/150'">
@@ -127,10 +105,11 @@ async function loadShopInfo() {
     } catch(e) { console.error(e); }
 }
 
-// CHARGER PRODUITS
+// 3. PRODUITS
 async function loadProducts() {
     try {
         const res = await fetch('data/produits.json');
+        if(!res.ok) throw new Error("Produits introuvables");
         const data = await res.json();
         products = data.items ? data.items : data;
 
@@ -159,6 +138,7 @@ function renderGrid(items) {
             const percent = Math.round(((p.prix_original - p.prix) / p.prix_original) * 100);
             promoBadge = `<div class="card-promo-badge">-${percent}%</div>`;
         }
+
         const catBadge = p.category ? `<div class="product-cat">${p.category}</div>` : '';
 
         grid.innerHTML += `
@@ -201,11 +181,12 @@ function filterByCategory(cat, btnElement) {
     else renderGrid(products.filter(p => p.category === cat));
 }
 
-// OUVRIR PRODUIT (MODALE) (Fonctions attachées à window car type="module")
+// 4. OUVRIR PRODUIT (MODALE)
 window.openProduct = function(id) {
     currentProduct = products.find(p => p.id == id);
     if(!currentProduct) return;
 
+    // A. Image Principale
     let mainImg = currentProduct.image || 'https://via.placeholder.com/300';
     if(mainImg.startsWith('/')) mainImg = mainImg.substring(1);
     
@@ -215,11 +196,12 @@ window.openProduct = function(id) {
         imgEl.style.transform = "none";
     }
 
+    // B. Galerie & Variantes
     const galleryBox = document.getElementById('m-gallery');
     if (galleryBox) {
         galleryBox.innerHTML = '';
-        let variants = [];
         
+        let variants = [];
         if(currentProduct.variants) {
             currentProduct.variants.forEach(v => {
                 let path = v.img;
@@ -236,19 +218,24 @@ window.openProduct = function(id) {
 
         if(variants.length > 0) {
             variants.unshift({ src: mainImg, name: 'Principal' });
+            
             variants.forEach((v, index) => {
                 const activeClass = index === 0 ? 'active' : '';
                 galleryBox.innerHTML += `
                     <div class="gallery-item ${activeClass}" onclick="selectVariant('${v.src}', '${v.name}', this)">
                         <img src="${v.src}" class="gallery-thumb">
-                        <span class="gallery-label" style="font-size:0.6rem; color:#888;">${v.name}</span>
+                        <span class="gallery-label">${v.name}</span>
                     </div>`;
             });
         }
     }
 
-    document.getElementById('m-title').textContent = currentProduct.nom;
-    document.getElementById('m-desc').textContent = currentProduct.desc || "";
+    // C. Textes
+    const titleEl = document.getElementById('m-title');
+    if(titleEl) titleEl.textContent = currentProduct.nom;
+    
+    const descEl = document.getElementById('m-desc');
+    if(descEl) descEl.textContent = currentProduct.desc || "";
     
     const priceBox = document.getElementById('m-price-box');
     if(priceBox) {
@@ -261,6 +248,7 @@ window.openProduct = function(id) {
         }
     }
 
+    // D. Tailles
     const sizeBox = document.getElementById('m-sizes-box');
     const sizeContainer = document.getElementById('m-sizes');
     selectedSize = null;
@@ -287,6 +275,7 @@ window.openProduct = function(id) {
         }
     }
 
+    // E. Reset UI
     document.getElementById('order-form-box').style.display = 'none';
     document.getElementById('btn-show-form').style.display = 'block';
     
@@ -296,16 +285,22 @@ window.openProduct = function(id) {
     const addr = document.getElementById('c-address');
     if(addr) { addr.style.display = 'none'; addr.value = ''; }
     
-    document.querySelectorAll('input[name="delivery"]')[0].checked = true;
+    const radios = document.querySelectorAll('input[name="delivery"]');
+    if(radios.length > 0) radios[0].checked = true;
     
     const modal = document.getElementById('product-modal');
     if(modal) modal.classList.add('active');
 };
 
+// SÉLECTION VARIANTE
 window.selectVariant = function(src, name, el) {
     const imgEl = document.getElementById('m-img');
-    if(imgEl) { imgEl.src = src; imgEl.style.transform = "none"; }
+    if(imgEl) {
+        imgEl.src = src;
+        imgEl.style.transform = "none";
+    }
     selectedVariant = name !== 'Principal' ? name : null;
+    
     document.querySelectorAll('.gallery-item').forEach(item => item.classList.remove('active'));
     if(el) el.classList.add('active');
 };
@@ -317,12 +312,15 @@ window.closeModal = function() {
 
 window.changeMainImage = function(src) { document.getElementById('m-img').src = src; };
 
-// ZOOM LOUPE
+// 5. ZOOM LOUPE (PC)
 function initZoom() {
     const box = document.querySelector('.modal-img-box');
     const img = document.getElementById('m-img');
+
     if(!box || !img) return;
+
     const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
     if(!isTouch) {
         box.addEventListener('mousemove', function(e) {
             const {left, top, width, height} = box.getBoundingClientRect();
@@ -338,7 +336,7 @@ function initZoom() {
     }
 }
 
-// FORMULAIRE & ACTIONS
+// 6. FORMULAIRE & ACTIONS
 const btnShow = document.getElementById('btn-show-form');
 if(btnShow) {
     btnShow.addEventListener('click', function() {
@@ -355,29 +353,51 @@ if(btnShow) {
 
 window.toggleAddress = function(show) {
     const field = document.getElementById('c-address');
-    if(field) { field.style.display = show ? 'block' : 'none'; field.required = show; }
+    if(field) {
+        field.style.display = show ? 'block' : 'none';
+        field.required = show;
+    }
 };
 
 window.openZoom = function(src) {
     const overlay = document.getElementById('zoom-view');
     const img = document.getElementById('zoom-img-target');
-    if(overlay && img) { img.src = src; overlay.classList.add('active'); }
+    if(overlay && img) {
+        img.src = src;
+        overlay.classList.add('active');
+    }
 };
-window.closeZoom = function() { document.getElementById('zoom-view').classList.remove('active'); };
+window.closeZoom = function() { 
+    const overlay = document.getElementById('zoom-view');
+    if(overlay) overlay.classList.remove('active');
+};
 
-window.openShareModal = function() { document.getElementById('share-modal').classList.add('active'); }
-window.closeShareModal = function() { document.getElementById('share-modal').classList.remove('active'); }
+window.openShareModal = function() { 
+    const m = document.getElementById('share-modal');
+    if(m) m.classList.add('active'); 
+}
+window.closeShareModal = function() { 
+    const m = document.getElementById('share-modal');
+    if(m) m.classList.remove('active'); 
+}
 window.shareTo = function(platform) {
     const url = encodeURIComponent(window.location.href);
     const text = encodeURIComponent(`Regarde ${shopData.name || ''} !`);
     let link = '';
+
     if (platform === 'whatsapp') link = `https://wa.me/?text=${text}%20${url}`;
     else if (platform === 'facebook') link = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-    else { navigator.clipboard.writeText(window.location.href); window.showToast("Lien copié !"); closeShareModal(); return; }
-    window.open(link, '_blank'); closeShareModal();
+    else {
+        navigator.clipboard.writeText(window.location.href);
+        showToast("Lien copié dans le presse-papier !");
+        closeShareModal();
+        return;
+    }
+    window.open(link, '_blank');
+    closeShareModal();
 }
 
-// ENVOI COMMANDE (AVEC TRACKING FIREBASE)
+// 7. ENVOI COMMANDE
 window.sendOrder = function() {
     const name = document.getElementById('c-name').value;
     const code = document.getElementById('c-code').value;
@@ -386,9 +406,9 @@ window.sendOrder = function() {
     const deliveryMode = deliveryInput ? deliveryInput.value : 'boutique';
     const address = document.getElementById('c-address').value;
 
-    if(!name || !phone) return window.showToast("Nom et Téléphone obligatoires !", "error");
-    if(currentProduct.sizes && (!selectedSize || selectedSize === "Unique")) return window.showToast("Veuillez choisir une taille !", "error");
-    if(deliveryMode === 'livraison' && !address) return window.showToast("Adresse obligatoire !", "error");
+    if(!name || !phone) return showToast("Nom et Téléphone obligatoires !", "error");
+    if(currentProduct.sizes && (!selectedSize || selectedSize === "Unique")) return showToast("Veuillez choisir une taille !", "error");
+    if(deliveryMode === 'livraison' && !address) return showToast("Adresse obligatoire !", "error");
 
     const fullPhone = code + phone;
     const deliveryText = deliveryMode === 'boutique' ? "🏪 Boutique" : `🛵 Livraison : ${address}`;
@@ -409,12 +429,6 @@ Nom : ${name}
 🚚 ${deliveryText}
 ---------------------------
 _Merci de confirmer._`.trim();
-
-    // --- TRACKING CLICK FIREBASE ---
-    const clickRef = ref(db, 'shops/' + SHOP_ID + '/clicks');
-    runTransaction(clickRef, (currentClicks) => {
-        return (currentClicks || 0) + 1;
-    });
 
     const url = `https://wa.me/${shopData.whatsapp_number}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
