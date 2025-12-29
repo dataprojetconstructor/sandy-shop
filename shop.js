@@ -2,15 +2,16 @@ let shopData = {};
 let products = [];
 let currentProduct = null;
 let selectedSize = null;
+let selectedVariant = null; // Pour la couleur
 
-// 1. DÉMARRAGE
 document.addEventListener('DOMContentLoaded', async () => {
     showShopSkeleton(); 
     await loadShopInfo();
     await loadProducts();
+    initZoom(); // Initialise la loupe sur PC
 });
 
-// SKELETON
+// --- SKELETON ---
 function showShopSkeleton() {
     const header = document.getElementById('header-container');
     header.innerHTML = `<div class="skeleton-header"><div class="sk-avatar"></div><div class="sk-line sk-w-50"></div><div class="sk-line sk-w-30"></div></div>`;
@@ -19,7 +20,7 @@ function showShopSkeleton() {
     for(let i=0; i<4; i++) grid.innerHTML += `<div class="product-card" style="height:250px; pointer-events:none;"><div class="product-img skeleton" style="height:180px;"></div><div class="product-info"><div class="sk-line sk-w-50" style="margin-bottom:5px;"></div><div class="sk-line sk-w-30"></div></div></div>`;
 }
 
-// 2. INFOS BOUTIQUE
+// --- INFO ---
 async function loadShopInfo() {
     try {
         const res = await fetch('data/info.json');
@@ -49,7 +50,7 @@ async function loadShopInfo() {
     } catch(e) { console.error(e); }
 }
 
-// 3. PRODUITS & FILTRES
+// --- PRODUITS ---
 async function loadProducts() {
     try {
         const res = await fetch('data/produits.json');
@@ -66,14 +67,18 @@ function renderGrid(items) {
     grid.innerHTML = '';
 
     if(items.length === 0) {
-        grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit trouvé.</div>';
+        grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit.</div>';
         return;
     }
 
     items.forEach(p => {
         const price = Number(p.prix).toLocaleString() + ' F';
+        
         let imgPath = p.image || 'https://via.placeholder.com/300';
         if(imgPath.startsWith('/')) imgPath = imgPath.substring(1);
+
+        // NOUVEAU : Affichage Catégorie sur la carte
+        const categoryHTML = p.category ? `<div class="product-cat">${p.category}</div>` : '';
 
         let promoBadge = '';
         if(p.prix_original && p.prix_original > p.prix) {
@@ -86,6 +91,7 @@ function renderGrid(items) {
                 ${promoBadge}
                 <img src="${imgPath}" class="product-img" onerror="this.src='https://via.placeholder.com/300'">
                 <div class="product-info">
+                    ${categoryHTML} <!-- Catégorie ici -->
                     <div class="product-title">${p.nom}</div>
                     <div class="product-price">${price}</div>
                 </div>
@@ -96,16 +102,8 @@ function renderGrid(items) {
 function generateCategoryFilters() {
     const catContainer = document.getElementById('category-container');
     if(!catContainer) return;
-    
-    // On cherche les catégories existantes dans les produits
     const categories = ['Tout'];
-    products.forEach(p => { 
-        // Si le produit a une catégorie et qu'elle n'est pas encore dans la liste
-        if(p.category && !categories.includes(p.category)) {
-            categories.push(p.category);
-        }
-    });
-
+    products.forEach(p => { if(p.category && !categories.includes(p.category)) categories.push(p.category); });
     catContainer.innerHTML = '';
     categories.forEach(cat => {
         const btn = document.createElement('button');
@@ -123,29 +121,60 @@ function filterByCategory(cat, btnElement) {
     else renderGrid(products.filter(p => p.category === cat));
 }
 
-// 4. OUVRIR PRODUIT (CORRECTION ICI : .active au lieu de .modal-active)
+// --- OUVERTURE PRODUIT & VARIANTES ---
 window.openProduct = function(id) {
     currentProduct = products.find(p => p.id == id);
     if(!currentProduct) return;
 
+    // A. Image Principale
     let mainImg = currentProduct.image || 'https://via.placeholder.com/300';
     if(mainImg.startsWith('/')) mainImg = mainImg.substring(1);
     document.getElementById('m-img').src = mainImg;
+    
+    // Reset Zoom
+    document.getElementById('m-img').style.transform = "none";
 
-    const galleryBox = document.getElementById('m-gallery');
-    galleryBox.innerHTML = '';
-    let images = [mainImg];
-    if(currentProduct.gallery) {
-        currentProduct.gallery.forEach(g => {
+    // B. Variantes (Couleurs + Images)
+    const variantBox = document.getElementById('m-variants');
+    variantBox.innerHTML = '';
+    selectedVariant = null; // Reset
+
+    // On combine l'image principale comme "Option 1" et les variantes ensuite
+    let variants = [];
+    
+    // Si on a des variantes configurées (nouveau système)
+    if(currentProduct.variants) {
+        currentProduct.variants.forEach(v => {
+            let path = v.img;
+            if(path.startsWith('/')) path = path.substring(1);
+            variants.push({ name: v.name, img: path });
+        });
+    } 
+    // Sinon on utilise l'ancienne "gallery" comme des variantes sans nom
+    else if(currentProduct.gallery) {
+        currentProduct.gallery.forEach((g, idx) => {
             let path = g.img;
             if(path.startsWith('/')) path = path.substring(1);
-            images.push(path);
+            variants.push({ name: `Vue ${idx+1}`, img: path });
         });
     }
-    if(images.length > 1) {
-        images.forEach(src => galleryBox.innerHTML += `<img src="${src}" class="gallery-thumb" onclick="changeMainImage('${src}')">`);
+
+    // Affichage des miniatures/variantes
+    if(variants.length > 0) {
+        // Ajout image principale au début si pas dedans
+        variants.unshift({ name: "Principal", img: mainImg });
+        
+        variants.forEach(v => {
+            variantBox.innerHTML += `
+                <div class="variant-option" onclick="selectVariant('${v.img}', '${v.name}', this)">
+                    <img src="${v.img}" class="variant-img">
+                    <span class="variant-label">${v.name}</span>
+                </div>
+            `;
+        });
     }
 
+    // C. Infos
     document.getElementById('m-title').textContent = currentProduct.nom;
     document.getElementById('m-desc').textContent = currentProduct.desc || "";
     
@@ -159,6 +188,7 @@ window.openProduct = function(id) {
         priceBox.innerHTML = `<h3 style="color:#FF9F1C; margin:0;">${price}</h3>`;
     }
 
+    // D. Tailles
     const sizeBox = document.getElementById('m-sizes-box');
     const sizeContainer = document.getElementById('m-sizes');
     selectedSize = null;
@@ -183,23 +213,64 @@ window.openProduct = function(id) {
         selectedSize = "Unique";
     }
 
+    // E. Reset UI
     document.getElementById('order-form-box').style.display = 'none';
     document.getElementById('btn-show-form').style.display = 'block';
     const arrow = document.querySelector('.scroll-hint-down');
     if(arrow) arrow.style.display = 'block';
+    document.getElementById('c-address').style.display = 'none';
+    document.querySelectorAll('input[name="delivery"]')[0].checked = true;
     
-    // CORRECTION MAJEURE ICI
-    document.getElementById('product-modal').classList.add('active');
+    document.getElementById('product-modal').classList.add('modal-active');
+};
+
+// Fonction changement variante
+window.selectVariant = function(src, name, el) {
+    document.getElementById('m-img').src = src;
+    selectedVariant = name;
+    
+    // Visuel actif
+    document.querySelectorAll('.variant-option').forEach(v => v.classList.remove('active'));
+    el.classList.add('active');
 };
 
 window.closeModal = function() {
     const modal = document.getElementById('product-modal');
-    if (modal) modal.classList.remove('active'); // CORRECTION ICI AUSSI
+    if (modal) modal.classList.remove('modal-active');
 };
 
-window.changeMainImage = function(src) { document.getElementById('m-img').src = src; };
+// --- LOGIQUE ZOOM LOUPE (PC) ---
+function initZoom() {
+    const box = document.querySelector('.modal-img-box');
+    const img = document.getElementById('m-img');
 
-// 5. INTERACTION & COMMANDE
+    // Détection Mobile (Pas de souris) -> On utilise le click (déjà géré par onclick="openZoom")
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+    if(!isTouch) {
+        // Désactiver le click pour ouvrir l'overlay sur PC, on utilise la loupe
+        img.onclick = null; 
+        
+        box.addEventListener('mousemove', function(e) {
+            const {left, top, width, height} = box.getBoundingClientRect();
+            const x = (e.clientX - left) / width * 100;
+            const y = (e.clientY - top) / height * 100;
+            
+            img.style.transformOrigin = `${x}% ${y}%`;
+            img.style.transform = "scale(2)"; // Grossissement x2
+        });
+
+        box.addEventListener('mouseleave', function() {
+            img.style.transform = "scale(1)"; // Reset
+            setTimeout(() => { img.style.transformOrigin = "center center"; }, 300);
+        });
+    } else {
+        // Sur mobile, on garde le onclick HTML pour le plein écran
+        img.onclick = () => openZoom(img.src);
+    }
+}
+
+// --- RESTE (Formulaire, Partage, etc.) ---
 const btnShow = document.getElementById('btn-show-form');
 if(btnShow) {
     btnShow.addEventListener('click', function() {
@@ -224,9 +295,8 @@ window.openZoom = function(src) {
 };
 window.closeZoom = function() { document.getElementById('zoom-view').classList.remove('active'); };
 
-window.openShareModal = function() { document.getElementById('share-modal').classList.add('active'); }
-window.closeShareModal = function() { document.getElementById('share-modal').classList.remove('active'); }
-
+window.openShareModal = function() { document.getElementById('share-modal').classList.add('modal-active'); }
+window.closeShareModal = function() { document.getElementById('share-modal').classList.remove('modal-active'); }
 window.shareTo = function(platform) {
     const url = encodeURIComponent(window.location.href);
     const text = encodeURIComponent(`Regarde ${shopData.name} !`);
@@ -251,6 +321,7 @@ window.sendOrder = function() {
     const fullPhone = code + phone;
     const deliveryText = deliveryMode === 'boutique' ? "🏪 Boutique" : `🛵 Livraison : ${address}`;
     const sizeText = currentProduct.sizes ? `📏 Taille : ${selectedSize}` : "";
+    const variantText = selectedVariant ? `🎨 Couleur : ${selectedVariant}` : "";
 
     const message = `
 *NOUVELLE COMMANDE* 🛍️
@@ -258,6 +329,7 @@ window.sendOrder = function() {
 🛒 *${currentProduct.nom}*
 💰 ${currentProduct.prix} F
 ${sizeText}
+${variantText}
 ---------------------------
 👤 *CLIENT :*
 Nom : ${name}
