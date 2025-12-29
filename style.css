@@ -287,3 +287,43 @@ body.dark-mode .nav-btn-fixed { background: rgba(30, 30, 30, 0.9); color: white;
 body.dark-mode .btn-share { color: white; }
 body.dark-mode .gallery-thumb { background: #333; border-color: #444; }
 body.dark-mode .gallery-item.active .gallery-thumb { border-color: var(--primary); }
+
+/* --- NOTIFICATION TOAST (Style App) --- */
+.toast {
+    visibility: hidden; /* Caché par défaut */
+    min-width: 250px;
+    background-color: rgba(30, 30, 30, 0.95); /* Noir presque opaque */
+    color: #fff;
+    text-align: center;
+    border-radius: 50px; /* Forme pilule */
+    padding: 12px 20px;
+    position: fixed;
+    z-index: 10000; /* Toujours au-dessus */
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%); /* Centré horizontalement */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: opacity 0.3s, bottom 0.3s;
+    opacity: 0;
+}
+
+/* Quand il est actif */
+.toast.show {
+    visibility: visible;
+    opacity: 1;
+    bottom: 50px; /* Petit effet de remontée */
+}
+
+.toast-icon { font-size: 1.2rem; }
+
+/* Support Dark Mode (On inverse pour que ça ressorte) */
+body.dark-mode .toast {
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #000;
+}
