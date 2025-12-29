@@ -4,44 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boutique</title>
+    
+    <!-- 1. STYLE -->
     <link rel="stylesheet" href="style.css">
+    
+    <!-- 2. POLICE (POPPINS) -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- 3. ICÔNES (FontAwesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- META SEO (Rempli par JS) -->
     <meta property="og:title" content="Boutique" id="og-title">
     <meta property="og:description" content="Découvrez nos produits" id="og-desc">
     <meta property="og:image" content="" id="og-image">
 </head>
 <body>
 
-    <!-- NAV -->
+    <!-- BOUTONS FLOTTANTS -->
     <a href="https://urbain7.github.io/EMAREA/" class="nav-btn-fixed btn-back"><i class="fas fa-arrow-left"></i></a>
     <div onclick="openShareModal()" class="nav-btn-fixed btn-share"><i class="fas fa-share-alt"></i></div>
 
-    <!-- HEADER & FILTRES -->
+    <!-- HEADER PROFIL -->
     <div class="profile-header" id="header-container"></div>
+
+    <!-- FILTRES CATÉGORIES -->
     <div id="category-container" class="category-scroll"></div>
 
     <!-- CATALOGUE -->
     <div class="catalog-title">Collections</div>
     <div class="catalog-grid" id="catalog-container"></div>
+
+    <!-- FOOTER -->
     <div class="shop-footer">Propulsé par <a href="https://urbain7.github.io/EMAREA/" style="color:#FF9F1C; font-weight:bold;">EM AREA</a></div>
 
-    <!-- MODALE PRODUIT -->
+    <!-- ============================== -->
+    <!-- MODALE PRODUIT (CORRIGÉE)      -->
+    <!-- ============================== -->
     <div id="product-modal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
         <div class="modal-card">
             
             <div class="close-btn" onclick="closeModal()">✕</div>
             
-            <!-- COLONNE GAUCHE : IMAGE + GALERIE -->
+            <!-- COLONNE GAUCHE -->
             <div class="modal-left-col">
+                <!-- Image Principale -->
                 <div class="modal-img-box">
                     <img id="m-img" class="modal-img" src="" onclick="openZoom(this.src)" alt="Produit">
                 </div>
-                <!-- Galerie bien en dessous -->
+                <!-- Galerie (Bien placée en dessous) -->
                 <div id="m-gallery" class="gallery-container"></div>
             </div>
 
-            <!-- COLONNE DROITE : INFOS -->
+            <!-- COLONNE DROITE -->
             <div class="modal-details">
                 <h2 id="m-title" style="margin-bottom:5px;">Titre</h2>
                 <div id="m-price-box" class="price-row"></div>
@@ -52,6 +67,7 @@
 
                 <div class="scroll-hint-down" onclick="document.getElementById('btn-show-form').scrollIntoView({behavior: 'smooth'})">↓</div>
 
+                <!-- Tailles -->
                 <div id="m-sizes-box" style="display:none;">
                     <h4 style="margin:10px 0 5px;">Taille :</h4>
                     <div id="m-sizes" class="size-selector"></div>
@@ -59,6 +75,7 @@
 
                 <button id="btn-show-form" class="btn-order btn-pulse">🛒 Commander</button>
 
+                <!-- Formulaire -->
                 <div id="order-form-box" class="order-form">
                     <h4 style="margin:0 0 15px;">📝 Finaliser la commande</h4>
                     <input type="text" id="c-name" class="form-input" placeholder="Votre Nom">
@@ -111,12 +128,13 @@
         <span class="zoom-close">&times;</span>
         <img id="zoom-img-target" class="zoom-img" src="">
     </div>
-<!-- NOTIFICATION TOAST -->
-<div id="toast-notification" class="toast">
-    <div class="toast-icon">✨</div>
-    <div class="toast-message">Message ici</div>
-</div>
-    <!-- Ajout de type="module" obligatoire pour Firebase -->
-<script type="module" src="shop.js"></script>
+
+    <!-- NOTIFICATION TOAST (C'est ça qu'il te manquait peut-être) -->
+    <div id="toast-notification" class="toast">
+        <div class="toast-icon"></div>
+        <div class="toast-message"></div>
+    </div>
+
+    <script src="shop.js"></script>
 </body>
 </html>
