@@ -2,38 +2,40 @@
   "items": [
     {
       "id": "cbbc2b4d-ad3a-4fb9-89a8-9e5dfdcc80c8",
-      "nom": "Chaussure Noire",
+      "nom": "Chaussure Noire Élégante",
       "category": "Chaussures",
       "prix": 5000,
-      "prix_original": null,
+      "prix_original": 7000,
+      "wholesale_price": 4000,
+      "min_qty": 5,
+      "stock_status": "stock",
+      "video_url": "",
+      "negotiable": true,
       "image": "assets/img/imageun.jpeg",
       "sizes": "37, 41, 42",
-      "desc": "Alliant style raffiné et confort durable, cette chaussure pour femme est conçue pour accompagner toutes vos tenues, du quotidien aux occasions spéciales. Sa silhouette élégante met en valeur le pied tout en assurant un maintien optimal grâce à une conception soignée et des matériaux de qualité.",
-      "is_new": true,
-      "is_star": false
+      "desc": "Chaussure confortable pour toutes les occasions. Semelle renforcée.",
+      "is_new": false,
+      "is_star": true
     },
     {
       "id": "244a7656-a9bb-40dd-b7c6-0b96cd50eb78",
-      "nom": "fad chaussure femme",
+      "nom": "Talons Rouges Soirée",
       "category": "Chaussures",
       "prix": 6000,
       "prix_original": 10000,
-      "image": "/assets/img/cho.jpeg",
+      "wholesale_price": null,
+      "stock_status": "order",
+      "video_url": "",
+      "negotiable": false,
+      "image": "assets/img/cho.jpeg",
       "variants": [
-        {
-          "name": "noire",
-          "img": "/assets/img/cho.jpeg"
-        }
+        { "name": "Rouge", "img": "assets/img/cho.jpeg" },
+        { "name": "Noir", "img": "assets/img/cv.jpeg" }
       ],
-      "sizes": "39",
-      "desc": "Alliant style raffiné et confort durable, cette chaussure pour femme est conçue pour accompagner toutes vos tenues, du quotidien aux occasions spéciales. Sa silhouette élégante met en valeur le pied tout en assurant un maintien optimal grâce à une conception soignée et des matériaux de qualité.",
+      "sizes": "39, 40",
+      "desc": "Idéal pour les soirées. Attention : Modèle sur commande (Délai 3 jours).",
       "is_new": true,
-      "is_star": false,
-      "gallery": [
-        {
-          "img": "/assets/img/cv.jpeg"
-        }
-      ]
+      "is_star": false
     }
   ]
 }
