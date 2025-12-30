@@ -4,20 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boutique</title>
-    
-    <!-- 1. STYLE -->
     <link rel="stylesheet" href="style.css">
-    
-    <!-- 2. POLICE (POPPINS) -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    
-    <!-- 3. ICÔNES (FontAwesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- META SEO (Rempli par JS) -->
-    <meta property="og:title" content="Boutique" id="og-title">
-    <meta property="og:description" content="Découvrez nos produits" id="og-desc">
-    <meta property="og:image" content="" id="og-image">
 </head>
 <body>
 
@@ -38,9 +27,7 @@
     <!-- FOOTER -->
     <div class="shop-footer">Propulsé par <a href="https://urbain7.github.io/EMAREA/" style="color:#FF9F1C; font-weight:bold;">EM AREA</a></div>
 
-    <!-- ============================== -->
-    <!-- MODALE PRODUIT (CORRIGÉE)      -->
-    <!-- ============================== -->
+    <!-- MODALE PRODUIT -->
     <div id="product-modal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
         <div class="modal-card">
             
@@ -48,11 +35,9 @@
             
             <!-- COLONNE GAUCHE -->
             <div class="modal-left-col">
-                <!-- Image Principale -->
                 <div class="modal-img-box">
                     <img id="m-img" class="modal-img" src="" onclick="openZoom(this.src)" alt="Produit">
                 </div>
-                <!-- Galerie (Bien placée en dessous) -->
                 <div id="m-gallery" class="gallery-container"></div>
             </div>
 
@@ -61,7 +46,7 @@
                 <h2 id="m-title" style="margin-bottom:5px;">Titre</h2>
                 <div id="m-price-box" class="price-row"></div>
                 
-                <div style="background:#f9f9f9; padding:15px; border-radius:12px; margin-bottom:15px; color:#555;">
+                <div style="background:#f9f9f9; padding:15px; border-radius:12px; margin-bottom:15px; color:#555;" id="desc-box">
                     <p id="m-desc" style="margin:0; font-size:0.9rem; line-height:1.5;">Description</p>
                 </div>
 
@@ -72,6 +57,11 @@
                     <h4 style="margin:10px 0 5px;">Taille :</h4>
                     <div id="m-sizes" class="size-selector"></div>
                 </div>
+
+                <!-- BOUTONS ACTIONS -->
+                <button id="btn-negotiate" class="btn-negotiate-style" style="display:none;">
+                    <i class="fab fa-whatsapp"></i> Négocier le prix
+                </button>
 
                 <button id="btn-show-form" class="btn-order btn-pulse">🛒 Commander</button>
 
@@ -129,7 +119,6 @@
         <img id="zoom-img-target" class="zoom-img" src="">
     </div>
 
-    <!-- NOTIFICATION TOAST (C'est ça qu'il te manquait peut-être) -->
     <div id="toast-notification" class="toast">
         <div class="toast-icon"></div>
         <div class="toast-message"></div>
