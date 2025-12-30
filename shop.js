@@ -6,6 +6,7 @@ let selectedVariant = null;
 
 // 1. DÉMARRAGE
 document.addEventListener('DOMContentLoaded', async () => {
+    checkShopTheme(); // Vérification du thème en premier
     showShopSkeleton(); 
     
     try {
@@ -17,28 +18,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// --- GESTION MODE SOMBRE INTELLIGENTE ---
-function checkDarkMode() {
-    // 1. On regarde si l'URL contient ?theme=dark (Vient de EM AREA)
+// --- GESTION MODE SOMBRE ---
+function checkShopTheme() {
+    // 1. Priorité : Paramètre URL venant de EM AREA (ex: ?theme=dark)
     const urlParams = new URLSearchParams(window.location.search);
     const urlTheme = urlParams.get('theme');
 
-    if (urlTheme) {
-        // Si oui, on l'applique et on le sauvegarde dans la mémoire de CE site
-        if (urlTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            localStorage.setItem('em_theme', 'dark');
-        } else {
-            document.body.classList.remove('dark-mode');
-            localStorage.setItem('em_theme', 'light');
-        }
-    } else {
-        // 2. Sinon, on regarde la mémoire locale habituelle
-        if(localStorage.getItem('em_theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-        }
+    if (urlTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('em_theme', 'dark');
+    } else if (urlTheme === 'light') {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('em_theme', 'light');
+    } 
+    // 2. Sinon : Mémoire locale
+    else if (localStorage.getItem('em_theme') === 'dark') {
+        document.body.classList.add('dark-mode');
     }
 }
+
+// Fonction appelée par le bouton 🌓
+window.toggleShopTheme = function() {
+    document.body.classList.toggle('dark-mode');
+    if (document.body.classList.contains('dark-mode')) {
+        localStorage.setItem('em_theme', 'dark');
+    } else {
+        localStorage.setItem('em_theme', 'light');
+    }
+    if (navigator.vibrate) navigator.vibrate(50);
+};
 
 // --- GESTION NOTIFICATIONS (TOAST) ---
 function showToast(message, type = 'success') {
@@ -177,7 +185,7 @@ function renderGrid(items) {
     });
 }
 
-// FILTRES
+// FILTRES CATÉGORIES
 function generateCategoryFilters() {
     const catContainer = document.getElementById('category-container');
     if(!catContainer) return;
@@ -204,7 +212,7 @@ function filterByCategory(cat, btnElement) {
     else renderGrid(products.filter(p => p.category === cat));
 }
 
-// 4. OUVRIR PRODUIT (MODALE)
+// 4. OUVRIR PRODUIT (MODALE SÉCURISÉE)
 window.openProduct = function(id) {
     currentProduct = products.find(p => p.id == id);
     if(!currentProduct) return;
@@ -219,7 +227,7 @@ window.openProduct = function(id) {
         imgEl.style.transform = "none";
     }
 
-    // B. Galerie & Variantes
+    // B. Galerie & Variantes (Sécurisé)
     const galleryBox = document.getElementById('m-gallery');
     if (galleryBox) {
         galleryBox.innerHTML = '';
@@ -235,10 +243,11 @@ window.openProduct = function(id) {
             currentProduct.gallery.forEach((g, idx) => {
                 let path = g.img;
                 if(path.startsWith('/')) path = path.substring(1);
-                variants.push({ src: path, name: '' });
+                variants.push({ src: path, name: `Vue ${idx+1}` });
             });
         }
 
+        // On affiche la galerie seulement s'il y a des variantes ou si on veut répéter l'image principale
         if(variants.length > 0) {
             variants.unshift({ src: mainImg, name: 'Principal' });
             
@@ -299,8 +308,11 @@ window.openProduct = function(id) {
     }
 
     // E. Reset UI
-    document.getElementById('order-form-box').style.display = 'none';
-    document.getElementById('btn-show-form').style.display = 'block';
+    const formBox = document.getElementById('order-form-box');
+    if(formBox) formBox.style.display = 'none';
+    
+    const btnShow = document.getElementById('btn-show-form');
+    if(btnShow) btnShow.style.display = 'block';
     
     const arrow = document.querySelector('.scroll-hint-down');
     if(arrow) arrow.style.display = 'block';
@@ -323,7 +335,6 @@ window.selectVariant = function(src, name, el) {
         imgEl.style.transform = "none";
     }
     selectedVariant = name !== 'Principal' ? name : null;
-    
     document.querySelectorAll('.gallery-item').forEach(item => item.classList.remove('active'));
     if(el) el.classList.add('active');
 };
@@ -382,6 +393,7 @@ window.toggleAddress = function(show) {
     }
 };
 
+// ZOOM PLEIN ÉCRAN
 window.openZoom = function(src) {
     const overlay = document.getElementById('zoom-view');
     const img = document.getElementById('zoom-img-target');
@@ -395,6 +407,7 @@ window.closeZoom = function() {
     if(overlay) overlay.classList.remove('active');
 };
 
+// PARTAGE
 window.openShareModal = function() { 
     const m = document.getElementById('share-modal');
     if(m) m.classList.add('active'); 
