@@ -31,7 +31,7 @@ collections:
               
               # PRIX & NÉGOCIATION
               - { label: "Prix Détail (CFA)", name: "prix", widget: "number" }
-              - { label: "Prix Original (Barré)", name: "prix_original", widget: "number", required: false }
+              - { label: "Prix Original (Optionnel)", name: "prix_original", widget: "number", required: false }
               - { label: "Prix accepté ? (Négociable)", name: "negotiable", widget: "boolean", default: true }
               
               # GROSSISTE
@@ -51,7 +51,7 @@ collections:
                   - { label: "Nom", name: "name", widget: "string" }
                   - { label: "Photo", name: "img", widget: "image" }
 
-              - { label: "Tailles", name: "sizes", widget: "string", required: false }
+              - { label: "Tailles (ex: 37, 38)", name: "sizes", widget: "string", required: false }
               - { label: "Description", name: "desc", widget: "text" }
               
               # BOOST
@@ -69,6 +69,13 @@ collections:
           - { label: "Slogan / Bio", name: "bio", widget: "string" }
           - { label: "Logo", name: "logo", widget: "image" }
           - { label: "Numéro WhatsApp (228...)", name: "whatsapp_number", widget: "string" }
-          - { label: "Facebook URL", name: "socials.facebook", widget: "string", required: false }
-          - { label: "Instagram URL", name: "socials.instagram", widget: "string", required: false }
-          - { label: "TikTok URL", name: "socials.tiktok", widget: "string", required: false }
+          
+          # CORRECTION ICI : On groupe les réseaux sociaux dans un Objet
+          - label: "Réseaux Sociaux"
+            name: "socials"
+            widget: "object"
+            collapsed: false
+            fields:
+              - { label: "Facebook URL", name: "facebook", widget: "string", required: false }
+              - { label: "Instagram URL", name: "instagram", widget: "string", required: false }
+              - { label: "TikTok URL", name: "tiktok", widget: "string", required: false }
