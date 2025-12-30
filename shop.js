@@ -64,7 +64,7 @@ function showToast(message, type = 'success') {
     const iconEl = toast.querySelector('.toast-icon');
     msgEl.textContent = message;
     if (type === 'error') { iconEl.textContent = '⚠️'; toast.style.backgroundColor = "rgba(220, 53, 69, 0.95)"; } 
-    else { iconEl.textContent = '✅'; toast.style.backgroundColor = "rgba(30, 30, 30, 0.95)"; }
+    else { iconEl.textContent = ' '; toast.style.backgroundColor = "rgba(30, 30, 30, 0.95)"; }
     toast.className = "toast show";
     setTimeout(() => { toast.className = toast.className.replace("show", ""); setTimeout(() => toast.style.backgroundColor = "", 300); }, 3000);
 }
