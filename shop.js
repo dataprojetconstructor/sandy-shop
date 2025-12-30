@@ -6,53 +6,52 @@ let selectedVariant = null;
 
 // 1. DÉMARRAGE
 document.addEventListener('DOMContentLoaded', async () => {
-    checkShopTheme(); // Vérification du thème en premier
+    checkShopTheme();
     showShopSkeleton(); 
     
     try {
         await loadShopInfo();
         await loadProducts();
-        initZoom(); // Active la loupe pour PC
-    } catch (e) {
-        console.error("Erreur chargement :", e);
-    }
+        initZoom();
+
+        // OUVERTURE AUTO (Deep Link)
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        
+        if (productId && products.length > 0) {
+            setTimeout(() => {
+                const found = products.find(p => p.id == productId);
+                if(found) {
+                    openProduct(found.id);
+                    const card = document.querySelectorAll('.product-card')[products.indexOf(found)];
+                    if(card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 300);
+        }
+
+    } catch (e) { console.error("Erreur chargement :", e); }
 });
 
-// --- GESTION MODE SOMBRE ---
+// MODE SOMBRE
 function checkShopTheme() {
-    // 1. Priorité : Paramètre URL venant de EM AREA (ex: ?theme=dark)
     const urlParams = new URLSearchParams(window.location.search);
     const urlTheme = urlParams.get('theme');
-
     if (urlTheme === 'dark') {
         document.body.classList.add('dark-mode');
         localStorage.setItem('em_theme', 'dark');
-    } else if (urlTheme === 'light') {
-        document.body.classList.remove('dark-mode');
-        localStorage.setItem('em_theme', 'light');
-    } 
-    // 2. Sinon : Mémoire locale
-    else if (localStorage.getItem('em_theme') === 'dark') {
+    } else if (localStorage.getItem('em_theme') === 'dark') {
         document.body.classList.add('dark-mode');
     }
 }
-
-// Fonction appelée par le bouton 🌓
 window.toggleShopTheme = function() {
     document.body.classList.toggle('dark-mode');
-    if (document.body.classList.contains('dark-mode')) {
-        localStorage.setItem('em_theme', 'dark');
-    } else {
-        localStorage.setItem('em_theme', 'light');
-    }
+    localStorage.setItem('em_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
     if (navigator.vibrate) navigator.vibrate(50);
 };
 
-// --- GESTION NOTIFICATIONS (TOAST) ---
+// TOASTS
 function showToast(message, type = 'success') {
     let toast = document.getElementById("toast-notification");
-    
-    // Création dynamique si absent
     if (!toast) {
         const tDiv = document.createElement('div');
         tDiv.id = 'toast-notification';
@@ -61,68 +60,43 @@ function showToast(message, type = 'success') {
         document.body.appendChild(tDiv);
         toast = tDiv;
     }
-
     const msgEl = toast.querySelector('.toast-message');
     const iconEl = toast.querySelector('.toast-icon');
-    
     msgEl.textContent = message;
-    
-    if (type === 'error') {
-        iconEl.textContent = '⚠️';
-        toast.style.backgroundColor = "rgba(220, 53, 69, 0.95)";
-    } else {
-        iconEl.textContent = ' ';
-        toast.style.backgroundColor = "rgba(30, 30, 30, 0.95)";
-    }
-    
+    if (type === 'error') { iconEl.textContent = '⚠️'; toast.style.backgroundColor = "rgba(220, 53, 69, 0.95)"; } 
+    else { iconEl.textContent = '✅'; toast.style.backgroundColor = "rgba(30, 30, 30, 0.95)"; }
     toast.className = "toast show";
-    
-    setTimeout(function(){ 
-        toast.className = toast.className.replace("show", ""); 
-        setTimeout(() => toast.style.backgroundColor = "", 300);
-    }, 3000);
+    setTimeout(() => { toast.className = toast.className.replace("show", ""); setTimeout(() => toast.style.backgroundColor = "", 300); }, 3000);
 }
 
-// --- SKELETON LOADER ---
+// SKELETON
 function showShopSkeleton() {
     const header = document.getElementById('header-container');
-    if(header) {
-        header.innerHTML = `<div class="skeleton-header"><div class="sk-avatar"></div><div class="sk-line sk-w-50"></div><div class="sk-line sk-w-30"></div></div>`;
-    }
-    
+    if(header) header.innerHTML = `<div class="skeleton-header"><div class="sk-avatar"></div><div class="sk-line sk-w-50"></div><div class="sk-line sk-w-30"></div></div>`;
     const grid = document.getElementById('catalog-container');
-    if(grid) {
-        grid.innerHTML = '';
-        for(let i=0; i<4; i++) {
-            grid.innerHTML += `<div class="product-card" style="height:250px; pointer-events:none;"><div class="product-img skeleton" style="height:180px;"></div><div class="product-info"><div class="sk-line sk-w-50" style="margin-bottom:5px;"></div><div class="sk-line sk-w-30"></div></div></div>`;
-        }
-    }
+    if(grid) { grid.innerHTML = ''; for(let i=0; i<4; i++) grid.innerHTML += `<div class="product-card" style="height:250px; pointer-events:none;"><div class="product-img skeleton" style="height:180px;"></div><div class="product-info"><div class="sk-line sk-w-50" style="margin-bottom:5px;"></div><div class="sk-line sk-w-30"></div></div></div>`; }
 }
 
-// 2. INFOS BOUTIQUE
+// INFOS & PRODUITS
 async function loadShopInfo() {
     try {
         const res = await fetch('data/info.json');
         if(!res.ok) throw new Error("Info introuvable");
         shopData = await res.json();
-        
         document.title = shopData.name;
-        const header = document.getElementById('header-container');
         
         let logoSrc = shopData.logo || 'https://via.placeholder.com/150';
         if(logoSrc.startsWith('/')) logoSrc = logoSrc.substring(1);
 
-        // SEO Dynamique
         const ogTitle = document.getElementById('og-title');
         const ogDesc = document.getElementById('og-desc');
         const ogImage = document.getElementById('og-image');
         const absoluteLogo = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/' + logoSrc;
-
         if(ogTitle) ogTitle.content = shopData.name;
         if(ogDesc) ogDesc.content = shopData.bio;
         if(ogImage) ogImage.content = absoluteLogo;
 
-        header.innerHTML = `
+        document.getElementById('header-container').innerHTML = `
             <img src="${logoSrc}" class="profile-img" onerror="this.src='https://via.placeholder.com/150'">
             <h1 class="profile-name">${shopData.name}</h1>
             <p class="profile-bio">${shopData.bio}</p>
@@ -136,14 +110,11 @@ async function loadShopInfo() {
     } catch(e) { console.error(e); }
 }
 
-// 3. PRODUITS
 async function loadProducts() {
     try {
         const res = await fetch('data/produits.json');
-        if(!res.ok) throw new Error("Produits introuvables");
         const data = await res.json();
         products = data.items ? data.items : data;
-
         generateCategoryFilters();
         renderGrid(products);
     } catch(e) { console.error(e); }
@@ -153,11 +124,7 @@ function renderGrid(items) {
     const grid = document.getElementById('catalog-container');
     if(!grid) return;
     grid.innerHTML = '';
-
-    if(!items || items.length === 0) {
-        grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit trouvé.</div>';
-        return;
-    }
+    if(!items || items.length === 0) { grid.innerHTML = '<div style="padding:40px; text-align:center; grid-column:1/-1;">Aucun produit.</div>'; return; }
 
     items.forEach(p => {
         const price = Number(p.prix).toLocaleString() + ' F';
@@ -169,7 +136,6 @@ function renderGrid(items) {
             const percent = Math.round(((p.prix_original - p.prix) / p.prix_original) * 100);
             promoBadge = `<div class="card-promo-badge">-${percent}%</div>`;
         }
-
         const catBadge = p.category ? `<div class="product-cat">${p.category}</div>` : '';
 
         grid.innerHTML += `
@@ -185,16 +151,12 @@ function renderGrid(items) {
     });
 }
 
-// FILTRES CATÉGORIES
 function generateCategoryFilters() {
     const catContainer = document.getElementById('category-container');
     if(!catContainer) return;
-    
     const categories = ['Tout'];
     products.forEach(p => { if(p.category && !categories.includes(p.category)) categories.push(p.category); });
-    
     if(categories.length <= 1) { catContainer.style.display = 'none'; return; }
-
     catContainer.innerHTML = '';
     categories.forEach(cat => {
         const btn = document.createElement('button');
@@ -212,62 +174,43 @@ function filterByCategory(cat, btnElement) {
     else renderGrid(products.filter(p => p.category === cat));
 }
 
-// 4. OUVRIR PRODUIT (MODALE SÉCURISÉE)
+// OUVERTURE PRODUIT
 window.openProduct = function(id) {
     currentProduct = products.find(p => p.id == id);
     if(!currentProduct) return;
 
-    // A. Image Principale
     let mainImg = currentProduct.image || 'https://via.placeholder.com/300';
     if(mainImg.startsWith('/')) mainImg = mainImg.substring(1);
     
     const imgEl = document.getElementById('m-img');
-    if(imgEl) {
-        imgEl.src = mainImg;
-        imgEl.style.transform = "none";
-    }
+    if(imgEl) { imgEl.src = mainImg; imgEl.style.transform = "none"; }
 
-    // B. Galerie & Variantes (Sécurisé)
     const galleryBox = document.getElementById('m-gallery');
     if (galleryBox) {
         galleryBox.innerHTML = '';
-        
         let variants = [];
         if(currentProduct.variants) {
             currentProduct.variants.forEach(v => {
-                let path = v.img;
-                if(path.startsWith('/')) path = path.substring(1);
+                let path = v.img; if(path.startsWith('/')) path = path.substring(1);
                 variants.push({ src: path, name: v.name });
             });
         } else if(currentProduct.gallery) {
             currentProduct.gallery.forEach((g, idx) => {
-                let path = g.img;
-                if(path.startsWith('/')) path = path.substring(1);
-                variants.push({ src: path, name: `Vue ${idx+1}` });
+                let path = g.img; if(path.startsWith('/')) path = path.substring(1);
+                variants.push({ src: path, name: '' });
             });
         }
-
-        // On affiche la galerie seulement s'il y a des variantes ou si on veut répéter l'image principale
         if(variants.length > 0) {
             variants.unshift({ src: mainImg, name: 'Principal' });
-            
             variants.forEach((v, index) => {
                 const activeClass = index === 0 ? 'active' : '';
-                galleryBox.innerHTML += `
-                    <div class="gallery-item ${activeClass}" onclick="selectVariant('${v.src}', '${v.name}', this)">
-                        <img src="${v.src}" class="gallery-thumb">
-                        <span class="gallery-label">${v.name}</span>
-                    </div>`;
+                galleryBox.innerHTML += `<div class="gallery-item ${activeClass}" onclick="selectVariant('${v.src}', '${v.name}', this)"><img src="${v.src}" class="gallery-thumb"><span class="gallery-label">${v.name}</span></div>`;
             });
         }
     }
 
-    // C. Textes
-    const titleEl = document.getElementById('m-title');
-    if(titleEl) titleEl.textContent = currentProduct.nom;
-    
-    const descEl = document.getElementById('m-desc');
-    if(descEl) descEl.textContent = currentProduct.desc || "";
+    document.getElementById('m-title').textContent = currentProduct.nom;
+    document.getElementById('m-desc').textContent = currentProduct.desc || "";
     
     const priceBox = document.getElementById('m-price-box');
     if(priceBox) {
@@ -280,11 +223,9 @@ window.openProduct = function(id) {
         }
     }
 
-    // D. Tailles
     const sizeBox = document.getElementById('m-sizes-box');
     const sizeContainer = document.getElementById('m-sizes');
     selectedSize = null;
-
     if(sizeBox && sizeContainer) {
         if(currentProduct.sizes) {
             sizeBox.style.display = 'block';
@@ -307,54 +248,32 @@ window.openProduct = function(id) {
         }
     }
 
-    // E. Reset UI
-    const formBox = document.getElementById('order-form-box');
-    if(formBox) formBox.style.display = 'none';
-    
-    const btnShow = document.getElementById('btn-show-form');
-    if(btnShow) btnShow.style.display = 'block';
-    
+    document.getElementById('order-form-box').style.display = 'none';
+    document.getElementById('btn-show-form').style.display = 'block';
     const arrow = document.querySelector('.scroll-hint-down');
     if(arrow) arrow.style.display = 'block';
-
-    const addr = document.getElementById('c-address');
-    if(addr) { addr.style.display = 'none'; addr.value = ''; }
+    document.getElementById('c-address').style.display = 'none';
+    document.querySelectorAll('input[name="delivery"]')[0].checked = true;
     
-    const radios = document.querySelectorAll('input[name="delivery"]');
-    if(radios.length > 0) radios[0].checked = true;
-    
-    const modal = document.getElementById('product-modal');
-    if(modal) modal.classList.add('active');
+    document.getElementById('product-modal').classList.add('active');
 };
 
-// SÉLECTION VARIANTE
 window.selectVariant = function(src, name, el) {
     const imgEl = document.getElementById('m-img');
-    if(imgEl) {
-        imgEl.src = src;
-        imgEl.style.transform = "none";
-    }
+    if(imgEl) { imgEl.src = src; imgEl.style.transform = "none"; }
     selectedVariant = name !== 'Principal' ? name : null;
     document.querySelectorAll('.gallery-item').forEach(item => item.classList.remove('active'));
     if(el) el.classList.add('active');
 };
 
-window.closeModal = function() {
-    const modal = document.getElementById('product-modal');
-    if (modal) modal.classList.remove('active');
-};
-
+window.closeModal = function() { document.getElementById('product-modal').classList.remove('active'); };
 window.changeMainImage = function(src) { document.getElementById('m-img').src = src; };
 
-// 5. ZOOM LOUPE (PC)
 function initZoom() {
     const box = document.querySelector('.modal-img-box');
     const img = document.getElementById('m-img');
-
     if(!box || !img) return;
-
     const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
     if(!isTouch) {
         box.addEventListener('mousemove', function(e) {
             const {left, top, width, height} = box.getBoundingClientRect();
@@ -370,16 +289,12 @@ function initZoom() {
     }
 }
 
-// 6. FORMULAIRE & ACTIONS
 const btnShow = document.getElementById('btn-show-form');
 if(btnShow) {
     btnShow.addEventListener('click', function() {
         this.style.display = 'none';
         const form = document.getElementById('order-form-box');
-        if(form) {
-            form.style.display = 'block';
-            form.scrollIntoView({behavior: 'smooth'});
-        }
+        if(form) { form.style.display = 'block'; form.scrollIntoView({behavior: 'smooth'}); }
         const arrow = document.querySelector('.scroll-hint-down');
         if(arrow) arrow.style.display = 'none';
     });
@@ -387,53 +302,28 @@ if(btnShow) {
 
 window.toggleAddress = function(show) {
     const field = document.getElementById('c-address');
-    if(field) {
-        field.style.display = show ? 'block' : 'none';
-        field.required = show;
-    }
+    if(field) { field.style.display = show ? 'block' : 'none'; field.required = show; }
 };
 
-// ZOOM PLEIN ÉCRAN
 window.openZoom = function(src) {
     const overlay = document.getElementById('zoom-view');
     const img = document.getElementById('zoom-img-target');
-    if(overlay && img) {
-        img.src = src;
-        overlay.classList.add('active');
-    }
+    if(overlay && img) { img.src = src; overlay.classList.add('active'); }
 };
-window.closeZoom = function() { 
-    const overlay = document.getElementById('zoom-view');
-    if(overlay) overlay.classList.remove('active');
-};
+window.closeZoom = function() { document.getElementById('zoom-view').classList.remove('active'); };
 
-// PARTAGE
-window.openShareModal = function() { 
-    const m = document.getElementById('share-modal');
-    if(m) m.classList.add('active'); 
-}
-window.closeShareModal = function() { 
-    const m = document.getElementById('share-modal');
-    if(m) m.classList.remove('active'); 
-}
+window.openShareModal = function() { document.getElementById('share-modal').classList.add('active'); }
+window.closeShareModal = function() { document.getElementById('share-modal').classList.remove('active'); }
 window.shareTo = function(platform) {
     const url = encodeURIComponent(window.location.href);
     const text = encodeURIComponent(`Regarde ${shopData.name || ''} !`);
     let link = '';
-
     if (platform === 'whatsapp') link = `https://wa.me/?text=${text}%20${url}`;
     else if (platform === 'facebook') link = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-    else {
-        navigator.clipboard.writeText(window.location.href);
-        showToast("Lien copié dans le presse-papier !");
-        closeShareModal();
-        return;
-    }
-    window.open(link, '_blank');
-    closeShareModal();
+    else { navigator.clipboard.writeText(window.location.href); showToast("Lien copié !"); closeShareModal(); return; }
+    window.open(link, '_blank'); closeShareModal();
 }
 
-// 7. ENVOI COMMANDE
 window.sendOrder = function() {
     const name = document.getElementById('c-name').value;
     const code = document.getElementById('c-code').value;
