@@ -27,25 +27,48 @@ collections:
             fields:
               - { label: "ID Unique", name: "id", widget: "uuid" }
               - { label: "Nom du produit", name: "nom", widget: "string" }
+              - { label: "Catégorie", name: "category", widget: "select", options: ["Tout", "Chaussures", "Vêtements", "Sacs", "Accessoires", "Beauté", "Enfants", "Tech", "Maison"], default: "Tout" }
               
-              # NOUVEAU : La catégorie est importante maintenant
-              - { label: "Catégorie", name: "category", widget: "select", options: ["Tout", "Chaussures", "Vêtements", "Sacs", "Accessoires", "Beauté", "Enfants"], default: "Tout" }
+              # PRIX & NÉGOCIATION
+              - { label: "Prix Détail (CFA)", name: "prix", widget: "number" }
+              - { label: "Prix Original (Barré)", name: "prix_original", widget: "number", required: false }
+              - { label: "Prix accepté ? (Négociable)", name: "negotiable", widget: "boolean", default: true }
               
-              - { label: "Prix Actuel (CFA)", name: "prix", widget: "number" }
-              - { label: "Prix Original (Optionnel)", name: "prix_original", widget: "number", required: false }
+              # GROSSISTE
+              - { label: "Prix de Gros (Optionnel)", name: "wholesale_price", widget: "number", required: false, hint: "Laisser vide si pas de vente en gros" }
+              - { label: "Quantité Min pour Gros", name: "min_qty", widget: "number", default: 5, required: false }
+
+              # STOCK & MEDIA
+              - { label: "Disponibilité", name: "stock_status", widget: "select", options: [{label: "✅ En Stock (Lomé)", value: "stock"}, {label: "✈️ Sur Commande", value: "order"}], default: "stock" }
+              - { label: "Image Principale", name: "image", widget: "image" }
+              - { label: "Lien Vidéo (MP4 ou YouTube)", name: "video_url", widget: "string", required: false }
               
-              - { label: "Image Principale (Par défaut)", name: "image", widget: "image" }
-              
-              # NOUVEAU SYSTÈME : VARIANTES (Couleurs + Photos)
-              - label: "Couleurs / Variantes (Optionnel)"
+              # VARIANTES
+              - label: "Couleurs / Variantes"
                 name: "variants"
                 widget: "list"
-                summary: "{{fields.name}}"
                 fields:
-                  - { label: "Nom (ex: Rouge, Bleu...)", name: "name", widget: "string" }
-                  - { label: "Photo correspondante", name: "img", widget: "image" }
+                  - { label: "Nom", name: "name", widget: "string" }
+                  - { label: "Photo", name: "img", widget: "image" }
 
-              - { label: "Tailles (ex: 38, 39, 40)", name: "sizes", widget: "string", required: false }
+              - { label: "Tailles", name: "sizes", widget: "string", required: false }
               - { label: "Description", name: "desc", widget: "text" }
-              - { label: "Est-ce Nouveau ?", name: "is_new", widget: "boolean", default: true }
-              - { label: "Mettre en Star ?", name: "is_star", widget: "boolean", default: false }
+              
+              # BOOST
+              - { label: "Nouveau ?", name: "is_new", widget: "boolean", default: true }
+              - { label: "Mettre en Star (Accueil) ?", name: "is_star", widget: "boolean", default: false }
+  
+  - name: "infos"
+    label: "⚙️ Infos Boutique"
+    files:
+      - name: "settings"
+        label: "Paramètres Généraux"
+        file: "data/info.json"
+        fields:
+          - { label: "Nom Boutique", name: "name", widget: "string" }
+          - { label: "Slogan / Bio", name: "bio", widget: "string" }
+          - { label: "Logo", name: "logo", widget: "image" }
+          - { label: "Numéro WhatsApp (228...)", name: "whatsapp_number", widget: "string" }
+          - { label: "Facebook URL", name: "socials.facebook", widget: "string", required: false }
+          - { label: "Instagram URL", name: "socials.instagram", widget: "string", required: false }
+          - { label: "TikTok URL", name: "socials.tiktok", widget: "string", required: false }
