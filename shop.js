@@ -39,23 +39,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // 2. GESTION DU THÈME (SOMBE / CLAIR)
+
+// 2. GESTION DU THÈME
 function checkShopTheme() {
     const urlParams = new URLSearchParams(window.location.search);
-    const savedTheme = localStorage.getItem('em_theme');
-    
-    if (urlParams.get('theme') === 'dark' || savedTheme === 'dark') {
+    // On regarde l'URL OU le localStorage
+    if (urlParams.get('theme') === 'dark' || localStorage.getItem('em_theme') === 'dark') {
         document.body.classList.add('dark-mode');
-        localStorage.setItem('em_theme', 'dark');
-        
-        // Patch JS pour forcer la couleur de la description si le CSS ne suffit pas
-        const descBox = document.getElementById('desc-box');
-        if(descBox) {
-            descBox.style.backgroundColor = '#2c2c2c';
-            descBox.style.color = '#ccc';
-        }
+        localStorage.setItem('em_theme', 'dark'); // On le sauvegarde pour la navigation interne
     }
 }
-
 // 3. AFFICHAGE (SKELETON & DONNÉES)
 function showShopSkeleton() {
     const grid = document.getElementById('catalog-container');
