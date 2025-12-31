@@ -1,3 +1,6 @@
+/* ========================================= */
+/* 1. VARIABLES & RESET                      */
+/* ========================================= */
 :root {
     --primary: #FF9F1C;   /* Orange EM AREA */
     --secondary: #2EC4B6; /* Turquoise */
@@ -22,7 +25,9 @@ a { text-decoration: none; color: inherit; transition: 0.2s; }
 img { max-width: 100%; display: block; }
 button, input, select, textarea { font-family: 'Poppins', sans-serif; }
 
-/* --- 1. NAVIGATION FIXE --- */
+/* ========================================= */
+/* 2. NAVIGATION & HEADER                    */
+/* ========================================= */
 .nav-btn-fixed {
     position: fixed; top: 15px; z-index: 900;
     width: 40px; height: 40px; border-radius: 50%;
@@ -37,7 +42,6 @@ button, input, select, textarea { font-family: 'Poppins', sans-serif; }
 .btn-back { left: 15px; color: var(--primary); }
 .btn-share { right: 15px; color: var(--dark); }
 
-/* --- 2. HEADER PROFIL --- */
 .profile-header {
     background: var(--white); padding: 60px 20px 30px; text-align: center;
     border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;
@@ -64,7 +68,9 @@ button, input, select, textarea { font-family: 'Poppins', sans-serif; }
 }
 .social-btn.whatsapp { background: #E8F5E9; color: #25D366; }
 
-/* --- 3. FILTRES CATÉGORIES --- */
+/* ========================================= */
+/* 3. FILTRES & CATALOGUE                    */
+/* ========================================= */
 .category-scroll {
     display: flex; gap: 10px; overflow-x: auto;
     padding: 0 15px 15px; margin-bottom: 10px;
@@ -81,7 +87,6 @@ button, input, select, textarea { font-family: 'Poppins', sans-serif; }
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-/* --- 4. GRILLE PRODUITS --- */
 .catalog-title { text-align: center; font-weight: 800; font-size: 1.2rem; margin-bottom: 15px; text-transform: uppercase; opacity: 0.8; }
 
 .catalog-grid {
@@ -104,7 +109,7 @@ button, input, select, textarea { font-family: 'Poppins', sans-serif; }
 .product-title { font-size: 0.9rem; font-weight: 600; margin: 0 0 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .product-price { color: var(--primary); font-weight: 800; font-size: 1rem; }
 
-/* BADGES */
+/* Badges */
 .card-promo-badge {
     position: absolute; top: 10px; right: 10px;
     background: #e74c3c; color: white;
@@ -114,7 +119,9 @@ button, input, select, textarea { font-family: 'Poppins', sans-serif; }
     z-index: 2; animation: heartBeat 2s infinite; 
 }
 
-/* --- 5. MODALE PRODUIT --- */
+/* ========================================= */
+/* 4. MODALE PRODUIT (ZOOM FIX)              */
+/* ========================================= */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.85); z-index: 2000;
@@ -141,12 +148,19 @@ button, input, select, textarea { font-family: 'Poppins', sans-serif; }
 }
 
 .modal-left-col { flex: 1; display: flex; flex-direction: column; gap: 15px; width: 100%; }
+
+/* CORRECTION ZOOM : Overflow Hidden est vital */
 .modal-img-box { 
     background: #f8f9fa; padding: 10px; border-radius: 12px; 
-    position: relative; overflow: hidden; height: 350px; 
+    position: relative; overflow: hidden; /* Empêche l'image de sortir */
+    height: 350px; 
     display: flex; align-items: center; justify-content: center;
 }
-.modal-img { width: 100%; height: 100%; object-fit: contain; }
+.modal-img { 
+    width: 100%; height: 100%; object-fit: contain; 
+    transition: transform 0.1s; /* Fluidité du zoom */
+    transform-origin: center center;
+}
 
 .gallery-container { display: flex; gap: 10px; overflow-x: auto; padding: 5px; justify-content: center; flex-wrap: wrap; }
 .gallery-item { cursor: pointer; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
@@ -156,13 +170,14 @@ button, input, select, textarea { font-family: 'Poppins', sans-serif; }
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 .gallery-item.active .gallery-thumb { border-color: var(--primary); transform: translateY(-3px); }
-.gallery-label { font-size: 0.6rem; color: #888; margin-top: 3px; font-weight: 600; }
 
+/* Détails */
 .modal-details { flex: 1; width: 100%; overflow-y: auto; padding-right: 5px;}
 .price-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
 .old-price { text-decoration: line-through; color: #999; font-size: 0.9rem; }
 .promo-price-heart { color: #e74c3c; font-weight: 800; font-size: 1.2rem; animation: heartBeat 2s infinite; }
 
+/* Formulaire */
 .order-form { margin-top: 20px; padding-top: 20px; border-top: 1px dashed #eee; display: none; }
 .form-input { width: 100%; padding: 12px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 10px; margin-bottom: 10px; font-family: inherit; }
 .phone-group { display: flex; gap: 10px; margin-bottom: 10px; }
@@ -170,7 +185,7 @@ button, input, select, textarea { font-family: 'Poppins', sans-serif; }
 .delivery-options { display: flex; gap: 10px; margin-bottom: 15px; }
 .radio-label { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; background: #f9f9f9; padding: 10px; border-radius: 8px; width: 100%; border: 1px solid #eee; cursor: pointer; }
 
-/* BOUTONS ACTIONS */
+/* Boutons Actions */
 .btn-order { 
     width: 100%; padding: 15px; background: var(--primary); color: white; 
     border: none; border-radius: 50px; font-weight: bold; font-size: 1rem; 
@@ -182,7 +197,7 @@ button, input, select, textarea { font-family: 'Poppins', sans-serif; }
     display: flex; align-items: center; justify-content: center; gap: 10px; 
     box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); 
 }
-/* Nouveau bouton négocier */
+/* Bouton Négocier */
 .btn-negotiate-style {
     width: 100%; padding: 12px; background: white; color: #25D366;
     border: 2px solid #25D366; border-radius: 50px; font-weight: 700;
@@ -191,11 +206,7 @@ button, input, select, textarea { font-family: 'Poppins', sans-serif; }
 }
 .btn-negotiate-style:active { transform: scale(0.98); background: #f0fff4; }
 
-.btn-pulse { 
-    animation: pulseOrder 2s infinite; 
-    background: linear-gradient(45deg, #FF9F1C, #ffbe5b);
-    transform: none !important;
-}
+.btn-pulse { animation: pulseOrder 2s infinite; background: linear-gradient(45deg, #FF9F1C, #ffbe5b); transform: none !important; }
 @keyframes pulseOrder { 0% { box-shadow: 0 0 0 0 rgba(255, 159, 28, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 159, 28, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 159, 28, 0); } }
 @keyframes heartBeat { 0% { transform: scale(1); } 15% { transform: scale(1.05); } 30% { transform: scale(1); } 45% { transform: scale(1.05); } 100% { transform: scale(1); } }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -206,7 +217,9 @@ button, input, select, textarea { font-family: 'Poppins', sans-serif; }
 
 .shop-footer { text-align: center; padding: 40px 20px 80px; font-size: 0.8rem; color: #ccc; border-top: 1px dashed #eee; margin-top: 40px; }
 
-/* MODALE PARTAGE & TOAST */
+/* ========================================= */
+/* 5. MODALES, TOAST & SKELETON              */
+/* ========================================= */
 .share-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 10px 0; }
 .share-item { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
 .share-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
@@ -222,22 +235,30 @@ button, input, select, textarea { font-family: 'Poppins', sans-serif; }
 }
 .toast.show { visibility: visible; opacity: 1; bottom: 50px; }
 
-/* ======================================================= */
-/* DARK MODE (CORRECTIONS LISIBILITÉ)                      */
-/* ======================================================= */
+.zoom-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: none; justify-content: center; align-items: center; }
+.zoom-overlay.active { display: flex; }
+.zoom-img { max-width: 95%; max-height: 95%; object-fit: contain; }
+
+.skeleton-header { padding: 40px; text-align: center; background: white; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.sk-avatar { width: 110px; height: 110px; border-radius: 35%; background: #eee; }
+.sk-line { height: 15px; background: #eee; border-radius: 4px; }
+.sk-w-50 { width: 50%; } .sk-w-30 { width: 30%; }
+.sk-avatar, .sk-line, .product-img.skeleton { background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%); background-size: 200% 100%; animation: 1.5s shine linear infinite; }
+@keyframes shine { to { background-position-x: -200%; } }
+
+/* ========================================= */
+/* 6. DARK MODE (LISIBILITÉ MAXIMALE)        */
+/* ========================================= */
 body.dark-mode { background: #121212; color: #f0f0f0; }
 
-/* Cartes et Fonds */
 body.dark-mode .profile-header, 
 body.dark-mode .product-card, 
 body.dark-mode .modal-card, 
 body.dark-mode .category-btn { 
-    background: #1e1e1e; 
-    border-color: #333; 
-    color: #ffffff; 
+    background: #1e1e1e; border-color: #333; color: #ffffff; 
 }
 
-/* Textes Importants en Blanc */
+/* Textes Forcés Blanc */
 body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4,
 body.dark-mode .product-title,
 body.dark-mode .profile-name,
@@ -249,29 +270,23 @@ body.dark-mode .profile-bio { color: #bbbbbb; }
 body.dark-mode .product-cat { color: #888; }
 body.dark-mode .modal-img-box { background: #2c2c2c; }
 
-/* Formulaires : Fond gris foncé, Texte Blanc */
+/* Formulaires et Boutons Dark */
 body.dark-mode .form-input, 
 body.dark-mode .country-select, 
 body.dark-mode .radio-label,
 body.dark-mode .size-btn { 
-    background: #2c2c2c; 
-    border-color: #444; 
-    color: #ffffff; 
+    background: #2c2c2c; border-color: #444; color: #ffffff; 
 }
 
-/* Close Btn */
 body.dark-mode .close-btn { background: #333; color: white; border-color: #555; }
 body.dark-mode .nav-btn-fixed { background: rgba(40,40,40,0.9); color: white; border-color: #555; }
 
-/* Boutons actifs */
 body.dark-mode .category-btn.active { background: var(--primary); color: white; }
 body.dark-mode .size-btn.selected { background: #fff; color: #000; }
 
-/* Bouton Négocier en Dark Mode */
+/* Bouton Négocier Dark */
 body.dark-mode .btn-negotiate-style {
-    background: #2c2c2c; /* Fond sombre */
-    color: #25D366;      /* Texte vert */
-    border-color: #25D366;
+    background: #2c2c2c; color: #25D366; border-color: #25D366;
 }
 
 body.dark-mode .gallery-thumb { background: #333; border-color: #444; }
