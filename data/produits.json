@@ -6,7 +6,7 @@
       "category": "Chaussures",
       "prix": 5000,
       "prix_original": 7000,
-      "negotiable": true,
+      "negotiable": false,
       "wholesale_price": 4000,
       "min_qty": 5,
       "stock_status": "stock",
