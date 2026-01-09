@@ -6,16 +6,22 @@
       "category": "Chaussures",
       "prix": 5000,
       "prix_original": 7000,
+      "negotiable": true,
       "wholesale_price": 4000,
       "min_qty": 5,
       "stock_status": "stock",
-      "video_url": "",
-      "negotiable": true,
       "image": "assets/img/imageun.jpeg",
+      "video_url": "https://youtu.be/IKcxlaiH8m0?si=o591On5PltF9IJlE",
+      "variants": [
+        {
+          "name": "noir",
+          "img": "/assets/img/imageun.jpeg"
+        }
+      ],
       "sizes": "37, 41, 42",
       "desc": "Chaussure confortable pour toutes les occasions. Semelle renforcée.",
       "is_new": false,
-      "is_star": true
+      "is_star": false
     },
     {
       "id": "244a7656-a9bb-40dd-b7c6-0b96cd50eb78",
@@ -23,14 +29,20 @@
       "category": "Chaussures",
       "prix": 6000,
       "prix_original": 10000,
+      "negotiable": false,
       "wholesale_price": null,
       "stock_status": "order",
-      "video_url": "",
-      "negotiable": false,
       "image": "assets/img/cho.jpeg",
+      "video_url": "",
       "variants": [
-        { "name": "Rouge", "img": "assets/img/cho.jpeg" },
-        { "name": "Noir", "img": "assets/img/cv.jpeg" }
+        {
+          "name": "Rouge",
+          "img": "assets/img/cho.jpeg"
+        },
+        {
+          "name": "Noir",
+          "img": "assets/img/cv.jpeg"
+        }
       ],
       "sizes": "39, 40",
       "desc": "Idéal pour les soirées. Attention : Modèle sur commande (Délai 3 jours).",
