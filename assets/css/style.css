@@ -327,3 +327,22 @@ body.dark-mode .toast {
     background-color: rgba(255, 255, 255, 0.95);
     color: #000;
 }
+/* Correction visibilité des tailles en mode sombre */
+body.dark-mode .size-btn {
+    background: #2c2c2c;   /* Fond gris foncé */
+    border-color: #444;    /* Bordure discrète */
+    color: #ffffff;        /* Chiffre en blanc */
+}
+
+/* Optionnel : Changer la couleur de la taille SÉLECTIONNÉE en mode sombre */
+body.dark-mode .size-btn.selected {
+    background: var(--primary); /* Devient Orange quand sélectionné */
+    border-color: var(--primary);
+    color: white;
+}
+/* Correction du bouton Fermer (Croix) en mode sombre */
+body.dark-mode .close-btn {
+    background: #333;       /* Fond gris foncé au lieu de blanc */
+    color: #ffffff;         /* La croix en blanc */
+    border-color: #555;     /* Bordure plus discrète */
+}
