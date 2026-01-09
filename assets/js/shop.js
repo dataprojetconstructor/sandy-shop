@@ -141,7 +141,8 @@ function renderGrid(items) {
         grid.innerHTML += `
             <div class="product-card" onclick="openProduct('${p.id}')">
                 ${promoBadge}
-                <img src="${imgPath}" class="product-img" onerror="this.src='https://via.placeholder.com/300'">
+                <!-- ICI : J'ai ajouté loading="lazy" pour la vitesse -->
+                <img src="${imgPath}" loading="lazy" class="product-img" onerror="this.src='https://via.placeholder.com/300'">
                 <div class="product-info">
                     ${catBadge}
                     <div class="product-title">${p.nom}</div>
